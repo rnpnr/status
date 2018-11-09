@@ -1,11 +1,14 @@
+#include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <unistd.h>
 #include <mpd/client.h>
 #include <X11/Xlib.h>
 
+static int done = 0;
 static char buf[1024];
 
 static Display *dpy;
@@ -19,6 +22,14 @@ die(const char *errstr, ...)
 	vfprintf(stderr, errstr, ap);
 	va_end(ap);
 	exit(1);
+}
+
+static void
+terminate(const int signo)
+{
+	(void)signo;
+
+	done = 1;
 }
 
 static char *
@@ -95,15 +106,21 @@ mpd(enum mpd_tag_type type)
 int
 main(void)
 {
+	struct sigaction sa;
 	char *status;
 	char *time;
 	char *song;
 	char *artist;
 
+	memset(&sa, 0, sizeof(sa));
+	sa.sa_handler = terminate;
+	sigaction(SIGINT,  &sa, NULL);
+	sigaction(SIGTERM, &sa, NULL);
+
 	if (!(dpy = XOpenDisplay(NULL)))
 		die("XOpenDisplay: can't open display\n");
 
-	for (;; sleep(1)) {
+	for (; !done; sleep(1)) {
 		time = gettime("%Y年%m月%d日 ♦ %R");
 		song = mpd(MPD_TAG_TITLE);
 		artist = mpd(MPD_TAG_ARTIST);
