@@ -110,7 +110,7 @@ mpd(enum mpd_tag_type type)
 	struct mpd_status *status = NULL;
 	char *ret = NULL;
 
-	conn = mpd_connection_new("localhost", 0, 60);
+	conn = mpd_connection_new("localhost", 0, 600);
 	if (!conn || mpd_connection_get_error(conn))
 		return smprintf("");
 
@@ -121,7 +121,8 @@ mpd(enum mpd_tag_type type)
 
 	status = mpd_recv_status(conn);
 
-	if (status && (mpd_status_get_state(status) == MPD_STATE_PLAY)) {
+	/* >= covers both PLAY and PAUSE */
+	if (status && (mpd_status_get_state(status) >= MPD_STATE_PLAY)) {
 		mpd_response_next(conn);
 		song = mpd_recv_song(conn);
 		ret = smprintf("%s", mpd_song_get_tag(song, type, 0));
