@@ -5,8 +5,13 @@ OBJ = $(SRC:.c=.o)
 
 all: status
 
+config.h:
+	cp config.def.h config.h
+
 .c.o:
 	$(CC) $(CFLAGS) -c $<
+
+$(OBJ): config.h
 
 status: $(OBJ)
 	$(CC) -o $@ $(OBJ) $(LDFLAGS)

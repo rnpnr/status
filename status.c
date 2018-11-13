@@ -10,6 +10,8 @@
 #include <mpd/client.h>
 #include <X11/Xlib.h>
 
+#include "config.h"
+
 static int done = 0;
 static char buf[1024];
 
@@ -109,7 +111,7 @@ mpd(enum mpd_tag_type type)
 	struct mpd_song *song = NULL;
 	struct mpd_status *status = NULL;
 
-	conn = mpd_connection_new("localhost", 0, 600);
+	conn = mpd_connection_new(mpdhost, 0, 600);
 	if (!conn || mpd_connection_get_error(conn))
 		return smprintf("");
 
@@ -154,7 +156,7 @@ main(void)
 		die("XOpenDisplay: can't open display\n");
 
 	for (; !done; sleep(1)) {
-		time = gettime("%Y年%m月%d日 ♦ %R");
+		time = gettime(timefmt);
 		song = mpd(MPD_TAG_TITLE);
 		artist = mpd(MPD_TAG_ARTIST);
 		vol = alsavol();
