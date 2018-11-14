@@ -65,7 +65,7 @@ setstatus(char *str)
 }
 
 static long
-alsavol(void)
+alsavol(const char *card, const char *output)
 {
 	snd_mixer_t *handle;
 	snd_mixer_selem_id_t *sid;
@@ -74,13 +74,13 @@ alsavol(void)
 	long vol, min, max;
 
 	snd_mixer_open(&handle, 0);
-	snd_mixer_attach(handle, "default");
+	snd_mixer_attach(handle, card);
 	snd_mixer_selem_register(handle, NULL, NULL);
 	snd_mixer_load(handle);
 
 	snd_mixer_selem_id_malloc(&sid);
 	snd_mixer_selem_id_set_index(sid, 0);
-	snd_mixer_selem_id_set_name(sid, "Speaker");
+	snd_mixer_selem_id_set_name(sid, output);
 	elem = snd_mixer_find_selem(handle, sid);
 
 	snd_mixer_selem_get_playback_volume(elem, SND_MIXER_SCHN_MONO, &vol);
@@ -159,7 +159,7 @@ main(void)
 		time = gettime(timefmt);
 		song = mpd(MPD_TAG_TITLE);
 		artist = mpd(MPD_TAG_ARTIST);
-		vol = alsavol();
+		vol = alsavol(alsacard, alsaoutput);
 
 		status = smprintf("[ %s - %s ][ %li%% ][ %s ]", artist, song,
 				vol, time);
