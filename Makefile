@@ -1,6 +1,6 @@
 include config.mk
 
-SRC = status.c linux.c
+SRC = status.c linux.c openbsd.c
 OBJ = $(SRC:.c=.o)
 
 all: status
