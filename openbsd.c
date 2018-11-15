@@ -1,11 +1,11 @@
+#include "status.h"
+
+#if defined(__OpenBSD__)
+
 #include <fcntl.h>
 #include <machine/apmvar.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
-
-#include "status.h"
-
-#if defined(__OpenBSD__)
 
 int
 getvol(const char *card, const char *output)
