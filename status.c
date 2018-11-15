@@ -30,8 +30,6 @@ die(const char *errstr, ...)
 static void
 terminate(const int signo)
 {
-	(void)signo;
-
 	done = 1;
 }
 
