@@ -16,7 +16,7 @@ static char buf[1024];
 
 static Display *dpy;
 
-static void
+void
 die(const char *errstr, ...)
 {
 	va_list ap;
@@ -35,7 +35,7 @@ terminate(const int signo)
 	done = 1;
 }
 
-static char *
+char *
 smprintf(const char *fmt, ...)
 {
 	va_list ap;
