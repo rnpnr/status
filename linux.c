@@ -1,8 +1,8 @@
+#include "status.h"
+
 #if defined(__linux__)
 #include <alsa/asoundlib.h>
 #include <alsa/mixer.h>
-
-#include "status.h"
 
 int
 getvol(const char *card, const char *output)
