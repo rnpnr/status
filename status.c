@@ -99,6 +99,8 @@ mpd(enum mpd_tag_type type)
 	} else
 		snprintf(buf, sizeof(buf), "%s", "");
 
+	if (status)
+		mpd_status_free(status);
 	mpd_response_finish(conn);
 	mpd_connection_free(conn);
 
