@@ -54,6 +54,24 @@ smprintf(const char *fmt, ...)
 	return ret;
 }
 
+int
+pscanf(const char *path, const char *fmt, ...)
+{
+	FILE *fp;
+	va_list ap;
+	int ret;
+
+	if (!(fp = fopen(path, "r")))
+		return -1;
+
+	va_start(ap, fmt);
+	ret = vfscanf(fp, fmt, ap);
+	va_end(ap);
+	fclose(fp);
+
+	return (ret == EOF) ? -1 : ret;
+}
+
 static void
 setstatus(char *str)
 {

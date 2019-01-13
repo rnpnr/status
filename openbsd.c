@@ -14,7 +14,7 @@ getvol(const char *card, const char *output)
 }
 
 char *
-batinfo(void)
+batinfo(const char *bat)
 {
 	struct apm_power_info pi;
 	int fd;

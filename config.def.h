@@ -9,3 +9,7 @@ static const char *timefmt = "%R";
    output is the output from that specific card you want the vol from */
 static const char *alsacard = "default";
 static const char *alsaoutput = "Speaker";
+
+/* main battery in system */
+/* found in /sys/class/power_supply/ */
+static const char *bat = "BAT0";
