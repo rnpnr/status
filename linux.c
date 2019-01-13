@@ -27,7 +27,7 @@ getvol(const char *card, const char *output)
 	snd_mixer_selem_get_playback_volume_range(elem, &min, &max);
 
 	/* covert from raw value to percent */
-	vol = (double)vol / (double)(max - min) * 100;
+	vol = (double)(vol - min) / (double)(max - min) * 100;
 
 	snd_mixer_close(handle);
 	snd_mixer_selem_id_free(sid);
