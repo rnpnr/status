@@ -1,11 +1,9 @@
-#include "status.h"
-
-#if defined(__OpenBSD__)
-
 #include <fcntl.h>
 #include <machine/apmvar.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+
+#include "status.h"
 
 int
 getvol(const char *card, const char *output)
@@ -40,5 +38,3 @@ batinfo(const char *bat)
 		return smprintf("%d%% (unknown)", pi.battery_life);
 	}
 }
-
-#endif
