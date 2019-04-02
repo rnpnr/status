@@ -13,6 +13,7 @@ getvol(const char *card, const char *output)
 	snd_mixer_selem_id_t *sid;
 	snd_mixer_elem_t *elem;
 
+	int notmuted;
 	long vol, min, max;
 
 	snd_mixer_open(&handle, 0);
@@ -27,13 +28,15 @@ getvol(const char *card, const char *output)
 
 	snd_mixer_selem_get_playback_volume(elem, SND_MIXER_SCHN_MONO, &vol);
 	snd_mixer_selem_get_playback_volume_range(elem, &min, &max);
+	snd_mixer_selem_get_playback_switch(elem, 0, &notmuted);
 
 	/* covert from raw value to percent */
 	vol = (double)(vol - min) / (double)(max - min) * 100;
 
 	snd_mixer_close(handle);
 	snd_mixer_selem_id_free(sid);
-	return (int)vol;
+
+	return notmuted ? (int)vol : -1;
 }
 
 char *
