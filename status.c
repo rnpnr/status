@@ -28,7 +28,7 @@ die(const char *errstr, ...)
 }
 
 static void
-terminate(const int signo)
+terminate(int signo)
 {
 	done = 1;
 }
@@ -82,7 +82,7 @@ setstatus(char *str)
 static char *
 gettime(const char *fmt)
 {
-	const time_t t = time(NULL);
+	time_t t = time(NULL);
 	if (!(strftime(buf, sizeof(buf), fmt, localtime(&t))))
 		return smprintf("");
 
