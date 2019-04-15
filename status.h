@@ -1,6 +1,6 @@
 void die(const char *errstr, ...);
-char *smprintf(const char *fmt, ...);
 int pscanf(const char *path, const char *fmt, ...);
+const char *bprintf(const char *fmt, ...);
 
-int getvol(const char *card, const char *output);
-char *batinfo(const char *bat);
+const char *getvol(const char *card, const char *output);
+const char *batinfo(const char *bat);

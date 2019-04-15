@@ -6,7 +6,7 @@
 
 #include "status.h"
 
-int
+const char *
 getvol(const char *card, const char *output)
 {
 	snd_mixer_t *handle;
@@ -36,10 +36,12 @@ getvol(const char *card, const char *output)
 	snd_mixer_close(handle);
 	snd_mixer_selem_id_free(sid);
 
-	return notmuted ? (int)vol : -1;
+	if (notmuted)
+		return bprintf("%d%%", (int)vol);
+	return bprintf("(muted)");
 }
 
-char *
+const char *
 batinfo(const char *bat)
 {
 	int perc;
@@ -70,8 +72,8 @@ batinfo(const char *bat)
 		h = timeleft;
 		m = (timeleft - (double)h) * 60;
 
-		return smprintf("%d%% (%d:%02d)", perc, h, m);
+		return bprintf("%d%% (%d:%02d)", perc, h, m);
 	}
 
-	return smprintf("%d%% (%s)", perc, state);
+	return bprintf("%d%% (%s)", perc, state);
 }

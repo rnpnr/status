@@ -33,25 +33,17 @@ terminate(int signo)
 	done = 1;
 }
 
-char *
-smprintf(const char *fmt, ...)
+const char *
+bprintf(const char *fmt, ...)
 {
+	int ret;
 	va_list ap;
-	char *ret;
-	int len;
 
 	va_start(ap, fmt);
-	len = vsnprintf(NULL, 0, fmt, ap);
+	ret = vsnprintf(buf, sizeof(buf), fmt, ap);
 	va_end(ap);
 
-	if (!(ret = malloc(++len)))
-		die("malloc\n");
-
-	va_start(ap, fmt);
-	vsnprintf(ret, len, fmt, ap);
-	va_end(ap);
-
-	return ret;
+	return (ret < 0)? NULL : buf;
 }
 
 int
@@ -84,9 +76,9 @@ gettime(const char *fmt)
 {
 	time_t t = time(NULL);
 	if (!(strftime(buf, sizeof(buf), fmt, localtime(&t))))
-		return smprintf("");
+		return NULL;
 
-	return smprintf("%s", buf);
+	return buf;
 }
 
 static char *
@@ -98,7 +90,7 @@ mpd(enum mpd_tag_type type)
 
 	conn = mpd_connection_new(mpdhost, 0, 600);
 	if (!conn || mpd_connection_get_error(conn))
-		return smprintf("");
+		return NULL;
 
 	mpd_command_list_begin(conn, true);
 	mpd_send_status(conn);
@@ -122,17 +114,16 @@ mpd(enum mpd_tag_type type)
 	mpd_response_finish(conn);
 	mpd_connection_free(conn);
 
-	return smprintf("%s", buf);
+	return buf;
 }
 
 int
 main(void)
 {
 	struct sigaction sa;
-	char *status;
-	char *time;
-	char *artist, *song;
-	int vol;
+	const char *s;
+	char status[STATUSLEN];
+	size_t len;
 
 	memset(&sa, 0, sizeof(sa));
 	sa.sa_handler = terminate;
@@ -142,20 +133,20 @@ main(void)
 	if (!(dpy = XOpenDisplay(NULL)))
 		die("XOpenDisplay: can't open display\n");
 
-	for (; !done; sleep(1)) {
-		time = gettime(timefmt);
-		song = mpd(MPD_TAG_TITLE);
-		artist = mpd(MPD_TAG_ARTIST);
-		vol = getvol(alsacard, alsaoutput);
+	for (len = 0; !done; sleep(1), len = 0) {
+		s = mpd(MPD_TAG_ARTIST);
+		len += snprintf(status + len, sizeof(status) - len, "[ %s -", s);
 
-		status = smprintf("[ %s - %s ][ %d%% ][ %s ]", artist, song,
-				vol, time);
+		s = mpd(MPD_TAG_TITLE);
+		len += snprintf(status + len, sizeof(status) - len, " %s ]", s);
+
+		s = getvol(alsacard, alsaoutput);
+		len += snprintf(status + len, sizeof(status) - len, "[ %s ]", s);
+
+		s = gettime(timefmt);
+		len += snprintf(status + len, sizeof(status) - len, "[ %s ]", s);
+
 		setstatus(status);
-
-		free(time);
-		free(song);
-		free(artist);
-		free(status);
 	}
 
 	XStoreName(dpy, DefaultRootWindow(dpy), NULL);
