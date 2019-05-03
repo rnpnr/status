@@ -71,7 +71,7 @@ setstatus(char *str)
 	XSync(dpy, False);	
 }
 
-static char *
+static const char *
 gettime(const char *fmt)
 {
 	time_t t = time(NULL);
@@ -81,7 +81,7 @@ gettime(const char *fmt)
 	return buf;
 }
 
-static char *
+static const char *
 mpd(enum mpd_tag_type type)
 {
 	struct mpd_connection *conn = NULL;
