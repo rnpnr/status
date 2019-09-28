@@ -1,3 +1,4 @@
+/* See LICENSE for license details. */
 #include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -12,6 +13,7 @@
 #include "config.h"
 
 static int done = 0;
+static int dflag = 0;
 static char buf[1024];
 
 static Display *dpy;
@@ -67,6 +69,11 @@ pscanf(const char *path, const char *fmt, ...)
 static void
 setstatus(char *str)
 {
+	if (dflag) {
+		puts(str);
+		return;
+	}
+
 	XStoreName(dpy, DefaultRootWindow(dpy), str);
 	XSync(dpy, False);	
 }
@@ -118,7 +125,7 @@ mpd(enum mpd_tag_type type)
 }
 
 int
-main(void)
+main(int argc, char *argv[])
 {
 	struct sigaction sa;
 	const char *s;
@@ -129,6 +136,16 @@ main(void)
 	sa.sa_handler = terminate;
 	sigaction(SIGINT,  &sa, NULL);
 	sigaction(SIGTERM, &sa, NULL);
+
+	if (argc > 2)
+		die("usage: %s [-d]\n", argv[0]);
+
+	for (;argc && *argv; argc--) {
+		switch ((argv++)[0][1]) {
+		case 'd':
+			dflag = 1;
+		}
+	}
 
 	if (!(dpy = XOpenDisplay(NULL)))
 		die("XOpenDisplay: can't open display\n");
