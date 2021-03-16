@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include "status.h"
+#include "util.h"
 
 const char *
 getvol(const char *card, const char *output)
