@@ -147,7 +147,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (!(dpy = XOpenDisplay(NULL)))
+	if (!dflag && !(dpy = XOpenDisplay(NULL)))
 		die("XOpenDisplay: can't open display\n");
 
 	for (len = 0; !done; sleep(1), len = 0) {
@@ -166,8 +166,10 @@ main(int argc, char *argv[])
 		setstatus(status);
 	}
 
-	XStoreName(dpy, DefaultRootWindow(dpy), NULL);
-	XCloseDisplay(dpy);
+	if (!dflag) {
+		XStoreName(dpy, DefaultRootWindow(dpy), NULL);
+		XCloseDisplay(dpy);
+	}
 
 	return 0;
 }
