@@ -38,7 +38,9 @@ getvol(struct Block *b)
 	/* covert from raw value to percent */
 	vol = (double)(vol - min) / (double)(max - min) * 100;
 
-	snd_mixer_elem_free(elem);
+	/* don't change to snd_mixer_elem_free() it leaks memory */
+	snd_mixer_close(handle);
+	snd_mixer_selem_id_free(sid);
 
 	if (notmuted) {
 		if (abs(vol) < 100)
