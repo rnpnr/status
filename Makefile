@@ -4,6 +4,7 @@ include config.mk
 SRC =\
 	blocks/battery.c\
 	blocks/gettime.c\
+	blocks/mpd.c\
 	blocks/volume.c\
 	status.c util.c
 OBJ = $(SRC:.c=.o)

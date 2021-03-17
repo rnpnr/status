@@ -5,8 +5,8 @@
 #include "../util.h"
 #include "mpd.h"
 
-static const char *
-mpd(enum mpd_tag_type type)
+size_t
+mpd(struct Block *b)
 {
 	struct mpd_connection *conn = NULL;
 	struct mpd_song *song = NULL;
@@ -14,7 +14,7 @@ mpd(enum mpd_tag_type type)
 
 	conn = mpd_connection_new(mpdhost, 0, 600);
 	if (!conn || mpd_connection_get_error(conn))
-		return NULL;
+		return bprintf(b->curstr, BLOCKLEN, b->fmt, "");
 
 	mpd_command_list_begin(conn, true);
 	mpd_send_status(conn);
@@ -27,16 +27,16 @@ mpd(enum mpd_tag_type type)
 	if (status && (mpd_status_get_state(status) >= MPD_STATE_PLAY)) {
 		mpd_response_next(conn);
 		song = mpd_recv_song(conn);
-		snprintf(buf, sizeof(buf), "%s",
-			mpd_song_get_tag(song, type, 0));
+		bprintf(buf, sizeof(buf), "%s",
+			mpd_song_get_tag(song, b->u.i, 0));
 		mpd_song_free(song);
 	} else
-		snprintf(buf, sizeof(buf), "%s", "");
+		bprintf(buf, sizeof(buf), "%s", "");
 
 	if (status)
 		mpd_status_free(status);
 	mpd_response_finish(conn);
 	mpd_connection_free(conn);
 
-	return buf;
+	return bprintf(b->curstr, BLOCKLEN, b->fmt, buf);
 }
