@@ -1,3 +1,9 @@
+SRC =\
+	blocks/battery.c\
+	blocks/gettime.c\
+	blocks/mpd.c\
+	blocks/volume.c
+
 PREFIX = /
 
 X11INC = /usr/X11R6/include
