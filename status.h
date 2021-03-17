@@ -8,3 +8,5 @@ struct Block {
 	char prevstr[BLOCKLEN];
 	size_t len;
 };
+
+extern char buf[BLOCKLEN];

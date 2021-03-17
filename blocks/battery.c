@@ -7,15 +7,14 @@
 #include "../util.h"
 #include "battery.h"
 
-#if 0
 #if defined(__linux__)
 size_t
 batinfo(struct Block *b)
 {
+	static char path[PATH_MAX], state[12];
 	int perc;
 	unsigned long power_now, energy_now, h, m;
 	double timeleft;
-	char path[PATH_MAX], state[12];
 
 	snprintf(path, sizeof(path), "/sys/class/power_supply/%s/capacity", bat);
 	if (pscanf(path, "%d", &perc) != 1)
@@ -40,10 +39,11 @@ batinfo(struct Block *b)
 		h = timeleft;
 		m = (timeleft - (double)h) * 60;
 
-		return bprintf("%d%% (%d:%02d)", perc, h, m);
-	}
+		bprintf(buf, sizeof(buf), "%d%% (%d:%02d)", perc, h, m);
+	} else
+		bprintf(buf, sizeof(buf), "%d%% (%s)", perc, state);
 
-	return bprintf("%d%% (%s)", perc, state);
+	return bprintf(b->curstr, BLOCKLEN, b->fmt, buf);
 }
 
 #elif defined(__OpenBSD__)
@@ -52,8 +52,8 @@ batinfo(struct Block *b)
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-const char *
-batinfo(const char *bat)
+size_t
+batinfo(struct Block *b)
 {
 	struct apm_power_info pi;
 	int fd;
@@ -69,16 +69,14 @@ batinfo(const char *bat)
 
 	switch (pi.ac_state) {
 	case APM_AC_OFF:
-		return smprintf("%d%% (%d:%02d)", pi.battery_life,
-				pi.minutes_left / 60, pi.minutes_left % 60);
+		bprintf(buf, sizeof(buf), "%d%% (%d:%02d)", pi.battery_life,
+			pi.minutes_left / 60, pi.minutes_left % 60);
 	case APM_AC_ON:
 	case APM_BATT_CHARGING:
-		return bprintf("%d%% (ac)", pi.battery_life);
+		bprintf(buf, sizeof(buf), "%d%% (ac)", pi.battery_life);
 	default:
-		return bprintf("%d%% (unknown)", pi.battery_life);
+		bprintf(buf, sizeof(buf), "%d%% (unknown)", pi.battery_life);
 	}
+	return bprintf(b->curstr, BLOCKLEN, b->fmt, buf);
 }
-
-#else
-#endif
 #endif

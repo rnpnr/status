@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "status.h"
+#include "util.h"
 
 void
 die(const char *errstr, ...)

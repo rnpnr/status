@@ -2,6 +2,7 @@
 include config.mk
 
 SRC =\
+	blocks/battery.c\
 	blocks/gettime.c\
 	blocks/volume.c\
 	status.c util.c

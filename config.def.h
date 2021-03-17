@@ -1,3 +1,4 @@
+#include "blocks/battery.h"
 #include "blocks/gettime.h"
 #include "blocks/volume.h"
 
@@ -19,6 +20,7 @@ static const char *bat = "BAT0";
 /* status block definitions */
 struct Block blks[] = {
 /*        fn         fmt                    interval   signal */
+	{ batinfo,   "[ %s ]",              0,         0 },
 	{ getvol,    "[ %s ]",              0,         0 },
 	{ gettime,   "[ %R ]",              20,        0 },
 	{ NULL },

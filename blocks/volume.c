@@ -14,8 +14,6 @@
 size_t
 getvol(struct Block *b)
 {
-	static char buf[6];
-
 	snd_mixer_t *handle;
 	snd_mixer_selem_id_t *sid;
 	snd_mixer_elem_t *elem;

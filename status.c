@@ -12,6 +12,7 @@
 
 static int done = 0;
 static int dflag = 0;
+char buf[BLOCKLEN];
 
 static Display *dpy;
 
