@@ -1,4 +1,5 @@
 #define BLOCKLEN 32
+#define BLOCKPAD 4
 struct Block {
 	size_t (*const fn)(struct Block *b);
 	const char *fmt;
@@ -10,4 +11,4 @@ struct Block {
 	size_t len;
 };
 
-extern char buf[BLOCKLEN];
+extern char buf[BLOCKLEN - BLOCKPAD];
