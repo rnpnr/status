@@ -1,7 +1,3 @@
-# Uncomment based on your OS
-SRC = linux.c
-#SRC = openbsd.c
-
 PREFIX = /
 
 X11INC = /usr/X11R6/include

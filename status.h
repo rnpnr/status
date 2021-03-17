@@ -1,5 +1,10 @@
-#define BUFLEN 1024
-extern char buf[BUFLEN];
-
-const char *getvol(const char *card, const char *output);
-const char *batinfo(const char *bat);
+#define BLOCKLEN 32
+struct Block {
+	size_t (*const fn)(struct Block *b);
+	const char *fmt;
+	const int interval;
+	const int signal;
+	char curstr[BLOCKLEN];
+	char prevstr[BLOCKLEN];
+	size_t len;
+};

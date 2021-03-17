@@ -1,6 +1,10 @@
+# See LICENSE for license details.
 include config.mk
 
-SRC += status.c util.c
+SRC =\
+	blocks/gettime.c\
+	blocks/volume.c\
+	status.c util.c
 OBJ = $(SRC:.c=.o)
 
 all: status
@@ -9,7 +13,7 @@ config.h:
 	cp config.def.h config.h
 
 .c.o:
-	$(CC) $(CFLAGS) -c $<
+	$(CC) $(CFLAGS) -o $@ -c $<
 
 $(OBJ): config.h
 
@@ -17,7 +21,7 @@ status: $(OBJ)
 	$(CC) -o $@ $(OBJ) $(LDFLAGS)
 
 clean:
-	rm -f *.o status
+	rm -f blocks/*.o *.o status
 
 install: all
 	mkdir -p $(DESTDIR)$(PREFIX)/bin

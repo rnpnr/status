@@ -1,3 +1,4 @@
+/* See LICENSE for license details. */
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,17 +16,17 @@ die(const char *errstr, ...)
 	exit(1);
 }
 
-const char *
-bprintf(const char *fmt, ...)
+size_t
+bprintf(char *buf, size_t buflen, const char *fmt, ...)
 {
 	size_t ret;
 	va_list ap;
 
 	va_start(ap, fmt);
-	ret = vsnprintf(buf, sizeof(buf), fmt, ap);
+	ret = vsnprintf(buf, buflen, fmt, ap);
 	va_end(ap);
 
-	return (ret < 0)? NULL : buf;
+	return (ret < buflen)? ret : buflen;
 }
 
 int
