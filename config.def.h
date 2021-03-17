@@ -5,23 +5,18 @@
 #define STATUSLEN 1024
 
 /* host for connecting to MPD, set to NULL for the MPD_HOST env variable */
-static const char *mpdhost = "localhost";
+const char *mpdhost = "localhost";
 
 /* alsa card and output */
-/* card is whatever alsamixer lists as card, default is probably correct
-   output is the output from that specific card you want the vol from */
-static const char *alsacard = "default";
-static const char *alsaoutput = "Speaker";
-
-/* main battery in system */
-/* found in /sys/class/power_supply/ */
-static const char *bat = "BAT0";
+/* card is found with 'aplay -L', default is probably correct
+ * output is specified as an arg */
+const char *alsacard = "default";
 
 /* status block definitions */
 struct Block blks[] = {
-/*        fn         fmt                    interval   signal */
-	{ batinfo,   "[ %s ]",              0,         0 },
-	{ getvol,    "[ %s ]",              0,         0 },
-	{ gettime,   "[ %R ]",              20,        0 },
+/*        fn         fmt                    interval   signal  arg */
+	{ batinfo,   "[ %s ]",              0,         0,      { .s = "BAT0" } },
+	{ getvol,    "[ %s ]",              0,         0,      { .s = "Speaker" } },
+	{ gettime,   "[ %R ]",              20,        0,      {0} },
 	{ NULL },
 };

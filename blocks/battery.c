@@ -16,22 +16,22 @@ batinfo(struct Block *b)
 	unsigned long power_now, energy_now, h, m;
 	double timeleft;
 
-	snprintf(path, sizeof(path), "/sys/class/power_supply/%s/capacity", bat);
+	snprintf(path, sizeof(path), "/sys/class/power_supply/%s/capacity", b->u.s);
 	if (pscanf(path, "%d", &perc) != 1)
 		perc = 0;
 
-	snprintf(path, sizeof(path), "/sys/class/power_supply/%s/status", bat);
+	snprintf(path, sizeof(path), "/sys/class/power_supply/%s/status", b->u.s);
 	if (pscanf(path, "%12s", &state) != 1)
 		snprintf(state, sizeof(state), "Unknown");
 
 	if (!strcmp(state, "Discharging")) {
 		snprintf(path, sizeof(path),
-			"/sys/class/power_supply/%s/power_now", bat);
+			"/sys/class/power_supply/%s/power_now", b->u.s);
 		if (pscanf(path, "%lu", &power_now) != 1)
 			power_now = 1;
 
 		snprintf(path, sizeof(path),
-			"/sys/class/power_supply/%s/energy_now", bat);
+			"/sys/class/power_supply/%s/energy_now", b->u.s);
 		if (pscanf(path, "%lu", &energy_now) != 1)
 			energy_now = 0;
 

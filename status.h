@@ -4,6 +4,7 @@ struct Block {
 	const char *fmt;
 	const int interval;
 	const int signal;
+	union { const char *s; const int i; } u;
 	char curstr[BLOCKLEN];
 	char prevstr[BLOCKLEN];
 	size_t len;

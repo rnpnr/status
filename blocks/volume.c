@@ -28,7 +28,7 @@ getvol(struct Block *b)
 
 	snd_mixer_selem_id_malloc(&sid);
 	snd_mixer_selem_id_set_index(sid, 0);
-	snd_mixer_selem_id_set_name(sid, alsaoutput);
+	snd_mixer_selem_id_set_name(sid, b->u.s);
 	elem = snd_mixer_find_selem(handle, sid);
 
 	snd_mixer_selem_get_playback_volume(elem, SND_MIXER_SCHN_MONO, &vol);
