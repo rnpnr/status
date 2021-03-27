@@ -15,6 +15,7 @@ static int dflag = 0;
 char buf[BLOCKLEN - BLOCKPAD];
 
 static Display *dpy;
+static struct Block *dirty;
 
 static void
 terminate(int signo)
@@ -23,14 +24,39 @@ terminate(int signo)
 }
 
 static void
-setstatus(char *str)
+updateblock(struct Block *b)
 {
+	b->len = b->fn(b);
+	if (memcmp(b->curstr, b->prevstr, b->len)) {
+		memcpy(b->prevstr, b->curstr, b->len);
+		if (!dirty || b < dirty)
+			dirty = b;
+	}
+}
+
+static void
+updatestatus(void)
+{
+	static char status[STATUSLEN];
+	struct Block *b;
+	char *s = status;
+
+	for (b = blks; b < dirty; b++)
+		s += b->len;
+
+	for (; b->fn; b++) {
+		memcpy(s, b->curstr, b->len);
+		s += b->len;
+	}
+	s[0] = '\0';
+	dirty = NULL;
+
 	if (dflag) {
-		puts(str);
+		puts(status);
 		return;
 	}
 
-	XStoreName(dpy, DefaultRootWindow(dpy), str);
+	XStoreName(dpy, DefaultRootWindow(dpy), status);
 	XSync(dpy, False);	
 }
 
@@ -38,8 +64,6 @@ int
 main(int argc, char *argv[])
 {
 	struct sigaction sa;
-	char status[STATUSLEN];
-	size_t len;
 	struct Block *b;
 
 	memset(&sa, 0, sizeof(sa));
@@ -60,13 +84,12 @@ main(int argc, char *argv[])
 	if (!dflag && !(dpy = XOpenDisplay(NULL)))
 		die("XOpenDisplay: can't open display\n");
 
-	for (len = 0; !done; sleep(1), len = 0) {
+	for (; !done; sleep(1))
 		for (b = blks; b->fn; b++) {
-			b->len = b->fn(b);
-			len += snprintf(status + len, sizeof(status) - len, "%s", b->curstr);
+			updateblock(b);
+			if (dirty)
+				updatestatus();
 		}
-		setstatus(status);
-	}
 
 	if (!dflag) {
 		XStoreName(dpy, DefaultRootWindow(dpy), NULL);
