@@ -3,8 +3,6 @@
 #include "blocks/mpd.h"
 #include "blocks/volume.h"
 
-#define STATUSLEN 1024
-
 /* host for connecting to MPD, set to NULL for the MPD_HOST env variable */
 const char *mpdhost = "localhost";
 
