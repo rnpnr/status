@@ -40,14 +40,25 @@ updatestatus(void)
 	static char status[STATUSLEN];
 	struct Block *b;
 	char *s = status;
+	ssize_t rem;
 
 	for (b = blks; b < dirty; b++)
 		s += b->len;
 
-	for (; b->fn; b++) {
-		memcpy(s, b->curstr, b->len);
-		s += b->len;
+	rem = sizeof(status) - (s - status);
+
+	for (; rem > 0 && b->fn; b++) {
+		if (b->len < (size_t)rem) {
+			memcpy(s, b->curstr, b->len);
+			s += b->len;
+		} else {
+			memcpy(s, b->curstr, rem);
+			s += rem;
+		}
+		rem = sizeof(status) - (s - status);
 	}
+	if (rem < 0)
+		s += rem;
 	s[0] = '\0';
 	dirty = NULL;
 
