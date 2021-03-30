@@ -39,11 +39,11 @@ batinfo(struct Block *b)
 		h = timeleft;
 		m = (timeleft - (double)h) * 60;
 
-		bprintf(buf, sizeof(buf), "%d%% (%d:%02d)", perc, h, m);
+		snprintf(buf, sizeof(buf), "%d%% (%d:%02d)", perc, h, m);
 	} else
-		bprintf(buf, sizeof(buf), "%d%% (%s)", perc, state);
+		snprintf(buf, sizeof(buf), "%d%% (%s)", perc, state);
 
-	return bprintf(b->curstr, BLOCKLEN, b->fmt, buf);
+	return snprintf(b->curstr, BLOCKLEN, b->fmt, buf);
 }
 
 #elif defined(__OpenBSD__)
@@ -69,14 +69,14 @@ batinfo(struct Block *b)
 
 	switch (pi.ac_state) {
 	case APM_AC_OFF:
-		bprintf(buf, sizeof(buf), "%d%% (%d:%02d)", pi.battery_life,
+		snprintf(buf, sizeof(buf), "%d%% (%d:%02d)", pi.battery_life,
 			pi.minutes_left / 60, pi.minutes_left % 60);
 	case APM_AC_ON:
 	case APM_BATT_CHARGING:
-		bprintf(buf, sizeof(buf), "%d%% (ac)", pi.battery_life);
+		snprintf(buf, sizeof(buf), "%d%% (ac)", pi.battery_life);
 	default:
-		bprintf(buf, sizeof(buf), "%d%% (unknown)", pi.battery_life);
+		snprintf(buf, sizeof(buf), "%d%% (unknown)", pi.battery_life);
 	}
-	return bprintf(b->curstr, BLOCKLEN, b->fmt, buf);
+	return snprintf(b->curstr, BLOCKLEN, b->fmt, buf);
 }
 #endif

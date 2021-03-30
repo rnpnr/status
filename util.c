@@ -17,19 +17,6 @@ die(const char *errstr, ...)
 	exit(1);
 }
 
-size_t
-bprintf(char *buf, size_t buflen, const char *fmt, ...)
-{
-	size_t ret;
-	va_list ap;
-
-	va_start(ap, fmt);
-	ret = vsnprintf(buf, buflen, fmt, ap);
-	va_end(ap);
-
-	return (ret < buflen)? ret : buflen;
-}
-
 int
 pscanf(const char *path, const char *fmt, ...)
 {

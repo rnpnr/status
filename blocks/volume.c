@@ -44,13 +44,13 @@ getvol(struct Block *b)
 
 	if (notmuted) {
 		if (abs(vol) < 100)
-			bprintf(buf, sizeof(buf), "%d%%", (int)vol);
+			snprintf(buf, sizeof(buf), "%d%%", (int)vol);
 		else
 			/* HACK: digital out is always 100% so just say on */
-			bprintf(buf, sizeof(buf), "%s", "on");
+			snprintf(buf, sizeof(buf), "%s", "on");
 	} else
-		bprintf(buf, sizeof(buf), "%s", "muted");
+		snprintf(buf, sizeof(buf), "%s", "muted");
 
-	return bprintf(b->curstr, BLOCKLEN, b->fmt, buf);
+	return snprintf(b->curstr, BLOCKLEN, b->fmt, buf);
 }
 #endif
