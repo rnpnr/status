@@ -18,6 +18,7 @@ char buf[BLOCKLEN - BLOCKPAD];
 
 static Display *dpy;
 static struct Block *dirty;
+static sigset_t blocksigmask;
 
 static void
 terminate(int signo)
@@ -62,16 +63,55 @@ updatestatus(void)
 	XSync(dpy, False);	
 }
 
+static void
+sighandler(int signo, siginfo_t *info, void *context)
+{
+	struct Block *b;
+
+	signo -= SIGRTMIN;
+	for (b = blks; b->fn; b++) {
+		if (b->signal == signo)
+			updateblock(b);
+		if (dirty)
+			updatestatus();
+	}
+}
+
+static void
+setupsigs(void)
+{
+	int i;
+	struct Block *b;
+	struct sigaction sa;
+
+	sa.sa_flags = SA_RESTART;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_handler = terminate;
+	sigaction(SIGHUP,  &sa, NULL);
+	sigaction(SIGINT,  &sa, NULL);
+	sigaction(SIGTERM, &sa, NULL);
+
+	/* ignore unused realtime signals */
+	sa.sa_handler = SIG_IGN;
+	for (i = SIGRTMIN + 1; i <= SIGRTMAX; i++)
+		sigaction(i, &sa, NULL);
+
+	/* handle update signals for blocks */
+	sa.sa_flags = SA_NODEFER | SA_RESTART | SA_SIGINFO;
+	sa.sa_mask = blocksigmask;
+	sa.sa_sigaction = sighandler;
+	for (b = blks; b->fn; b++) {
+		if (SIGRTMIN + b->signal > SIGRTMAX)
+			die("SIGRTMIN + %d exceeds SIGRTMAX\n", b->signal);
+		else if (b->signal > 0)
+			sigaction(SIGRTMIN + b->signal, &sa, NULL);
+	}
+}
+
 int
 main(int argc, char *argv[])
 {
-	struct sigaction sa;
 	struct Block *b;
-
-	memset(&sa, 0, sizeof(sa));
-	sa.sa_handler = terminate;
-	sigaction(SIGINT,  &sa, NULL);
-	sigaction(SIGTERM, &sa, NULL);
 
 	if (argc > 2)
 		die("usage: %s [-d]\n", argv[0]);
@@ -82,6 +122,8 @@ main(int argc, char *argv[])
 			dflag = 1;
 		}
 	}
+
+	setupsigs();
 
 	if (!dflag && !(dpy = XOpenDisplay(NULL)))
 		die("XOpenDisplay: can't open display\n");
