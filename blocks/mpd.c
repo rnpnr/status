@@ -12,11 +12,13 @@ static int
 openconn(void)
 {
 	conn = mpd_connection_new(mpdhost, 0, 0);
-	if (mpd_connection_get_error(conn)) {
+	if (mpd_connection_get_error(conn)
+	|| !mpd_connection_set_keepalive(conn, true)) {
 		mpd_connection_free(conn);
 		conn = NULL;
 		return -1;
 	}
+	mpd_send_idle(conn);
 	return 0;
 }
 
@@ -35,6 +37,7 @@ mpd(struct Block *b)
 			return snprintf(b->curstr, BLOCKLEN, b->fmt, "");
 	}
 
+	mpd_run_noidle(conn);
 	if (mpd_send_status(conn))
 		status = mpd_recv_status(conn);
 
@@ -51,6 +54,7 @@ mpd(struct Block *b)
 	if (status)
 		mpd_status_free(status);
 	mpd_response_finish(conn);
+	mpd_send_idle(conn);
 
 	return snprintf(b->curstr, BLOCKLEN, b->fmt, buf);
 }
