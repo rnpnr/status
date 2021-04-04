@@ -17,6 +17,7 @@ getvol(struct Block *b)
 	snd_mixer_t *handle;
 	snd_mixer_selem_id_t *sid;
 	snd_mixer_elem_t *elem;
+	const char *str = "muted";
 
 	int notmuted;
 	long vol, min, max;
@@ -43,14 +44,14 @@ getvol(struct Block *b)
 	snd_mixer_selem_id_free(sid);
 
 	if (notmuted) {
-		if (abs(vol) < 100)
+		/* HACK: digital out is always 100% so just say on */
+		if (abs(vol) < 100) {
 			snprintf(buf, sizeof(buf), "%d%%", (int)vol);
-		else
-			/* HACK: digital out is always 100% so just say on */
-			snprintf(buf, sizeof(buf), "%s", "on");
-	} else
-		snprintf(buf, sizeof(buf), "%s", "muted");
+			str = buf;
+		} else
+			str = "on";
+	}
 
-	return snprintf(b->curstr, LEN(b->curstr), b->fmt, buf);
+	return snprintf(b->curstr, LEN(b->curstr), b->fmt, str);
 }
 #endif
