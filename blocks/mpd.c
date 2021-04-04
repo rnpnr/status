@@ -38,13 +38,11 @@ mpd(struct Block *b)
 	}
 
 	mpd_run_noidle(conn);
-	if (mpd_send_status(conn))
-		status = mpd_recv_status(conn);
+	status = mpd_run_status(conn);
 
 	/* >= covers both PLAY and PAUSE */
 	if (status && (mpd_status_get_state(status) >= MPD_STATE_PLAY)) {
-		mpd_send_current_song(conn);
-		song = mpd_recv_song(conn);
+		song = mpd_run_current_song(conn);
 		snprintf(buf, sizeof(buf), "%s",
 			mpd_song_get_tag(song, b->u.i, 0));
 		mpd_song_free(song);
