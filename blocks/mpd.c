@@ -51,7 +51,6 @@ mpd(struct Block *b)
 
 	if (status)
 		mpd_status_free(status);
-	mpd_response_finish(conn);
 	mpd_send_idle(conn);
 
 	return snprintf(b->curstr, LEN(b->curstr), b->fmt, buf);
