@@ -69,12 +69,11 @@ sighandler(int signo, siginfo_t *info, void *context)
 	struct Block *b;
 
 	signo -= SIGRTMIN;
-	for (b = blks; b->fn; b++) {
+	for (b = blks; b->fn; b++)
 		if (b->signal == signo)
 			updateblock(b);
-		if (dirty)
-			updatestatus();
-	}
+	if (dirty)
+		updatestatus();
 }
 
 static void
