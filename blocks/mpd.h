@@ -2,4 +2,5 @@
 #include <mpd/tag.h>
 
 extern const char *mpdhost;
-size_t mpd(struct Block *b);
+
+size_t mpd_tag(struct Block *b);

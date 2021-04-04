@@ -12,14 +12,14 @@ static int
 open_conn(void)
 {
 	conn = mpd_connection_new(mpdhost, 0, 0);
-	if (mpd_connection_get_error(conn)
-	|| !mpd_connection_set_keepalive(conn, true)) {
-		mpd_connection_free(conn);
-		conn = NULL;
-		return -1;
+	if (!mpd_connection_get_error(conn)
+	&& mpd_connection_set_keepalive(conn, true)) {
+		mpd_send_idle(conn);
+		return 0;
 	}
-	mpd_send_idle(conn);
-	return 0;
+	mpd_connection_free(conn);
+	conn = NULL;
+	return -1;
 }
 
 static int
@@ -33,7 +33,7 @@ check_conn(void)
 }
 
 size_t
-mpd(struct Block *b)
+mpd_tag(struct Block *b)
 {
 	struct mpd_song *song = NULL;
 	struct mpd_status *status = NULL;
