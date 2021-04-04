@@ -38,19 +38,24 @@ mpd(struct Block *b)
 	}
 
 	mpd_run_noidle(conn);
-	status = mpd_run_status(conn);
 
-	/* >= covers both PLAY and PAUSE */
-	if (status && (mpd_status_get_state(status) >= MPD_STATE_PLAY)) {
-		song = mpd_run_current_song(conn);
-		snprintf(buf, sizeof(buf), "%s",
-			mpd_song_get_tag(song, b->u.i, 0));
-		mpd_song_free(song);
+	if ((status = mpd_run_status(conn))) {
+		switch (mpd_status_get_state(status)) {
+		case MPD_STATE_PAUSE:
+		case MPD_STATE_PLAY:
+			song = mpd_run_current_song(conn);
+			snprintf(buf, sizeof(buf), "%s",
+				mpd_song_get_tag(song, b->u.i, 0));
+			mpd_song_free(song);
+			break;
+		case MPD_STATE_STOP:
+		default:
+			snprintf(buf, sizeof(buf), "%s", "");
+		}
+		mpd_status_free(status);
 	} else
 		snprintf(buf, sizeof(buf), "%s", "");
 
-	if (status)
-		mpd_status_free(status);
 	mpd_send_idle(conn);
 
 	return snprintf(b->curstr, LEN(b->curstr), b->fmt, buf);
