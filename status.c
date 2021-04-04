@@ -128,9 +128,16 @@ main(int argc, char *argv[])
 	if (!dflag && !(dpy = XOpenDisplay(NULL)))
 		die("XOpenDisplay: can't open display\n");
 
+	/* initialize blocks before first print */
+	for (b = blks; b->fn; b++)
+		if (b->interval != -1)
+			updateblock(b);
+	updatestatus();
+
 	for (; !done; sleep(1))
 		for (b = blks; b->fn; b++) {
-			updateblock(b);
+			if (b->interval > 0)
+				updateblock(b);
 			if (dirty)
 				updatestatus();
 		}

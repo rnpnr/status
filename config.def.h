@@ -14,10 +14,10 @@ const char *alsacard = "default";
 /* status block definitions */
 struct Block blks[] = {
 /*        fn         fmt                    interval   signal  arg */
-	{ mpd,       "[ %s ",               0,         0,      { .i = MPD_TAG_ARTIST } },
-	{ mpd,       "- %s ]",              0,         0,      { .i = MPD_TAG_TITLE } },
-	{ batinfo,   "[ %s ]",              0,         0,      { .s = "BAT0" } },
-	{ getvol,    "[ %s ]",              0,         0,      { .s = "Speaker" } },
+	{ mpd,       "[ %s ",               0,         1,      { .i = MPD_TAG_ARTIST } },
+	{ mpd,       "- %s ]",              0,         1,      { .i = MPD_TAG_TITLE } },
+	{ batinfo,   "[ %s ]",              30,        0,      { .s = "BAT0" } },
+	{ getvol,    "[ %s ]",              0,         2,      { .s = "Speaker" } },
 	{ gettime,   "[ %R ]",              20,        0,      {0} },
 	{ NULL },
 };
