@@ -29,12 +29,12 @@ mpd(struct Block *b)
 	struct mpd_status *status = NULL;
 
 	if (!conn && openconn() != 0)
-		return snprintf(b->curstr, BLOCKLEN, b->fmt, "");
+		return snprintf(b->curstr, LEN(b->curstr), b->fmt, "");
 
 	if (mpd_connection_get_error(conn)) {
 		mpd_connection_free(conn);
 		if (openconn() != 0)
-			return snprintf(b->curstr, BLOCKLEN, b->fmt, "");
+			return snprintf(b->curstr, LEN(b->curstr), b->fmt, "");
 	}
 
 	mpd_run_noidle(conn);
@@ -54,5 +54,5 @@ mpd(struct Block *b)
 	mpd_response_finish(conn);
 	mpd_send_idle(conn);
 
-	return snprintf(b->curstr, BLOCKLEN, b->fmt, buf);
+	return snprintf(b->curstr, LEN(b->curstr), b->fmt, buf);
 }

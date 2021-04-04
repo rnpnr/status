@@ -51,6 +51,6 @@ getvol(struct Block *b)
 	} else
 		snprintf(buf, sizeof(buf), "%s", "muted");
 
-	return snprintf(b->curstr, BLOCKLEN, b->fmt, buf);
+	return snprintf(b->curstr, LEN(b->curstr), b->fmt, buf);
 }
 #endif

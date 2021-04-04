@@ -43,7 +43,7 @@ batinfo(struct Block *b)
 	} else
 		snprintf(buf, sizeof(buf), "%d%% (%s)", perc, state);
 
-	return snprintf(b->curstr, BLOCKLEN, b->fmt, buf);
+	return snprintf(b->curstr, LEN(b->curstr), b->fmt, buf);
 }
 
 #elif defined(__OpenBSD__)
@@ -77,6 +77,6 @@ batinfo(struct Block *b)
 	default:
 		snprintf(buf, sizeof(buf), "%d%% (unknown)", pi.battery_life);
 	}
-	return snprintf(b->curstr, BLOCKLEN, b->fmt, buf);
+	return snprintf(b->curstr, LEN(b->curstr), b->fmt, buf);
 }
 #endif
