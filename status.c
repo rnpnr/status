@@ -83,6 +83,22 @@ setupsigs(void)
 	struct Block *b;
 	struct sigaction sa;
 
+	/* add signals to blocksigmask */
+	sigemptyset(&blocksigmask);
+	sigaddset(&blocksigmask, SIGHUP);
+	sigaddset(&blocksigmask, SIGINT);
+	sigaddset(&blocksigmask, SIGTERM);
+	for (b = blks; b->fn; b++) {
+		if (b->signal <= 0)
+			continue;
+
+		if (b->signal > SIGRTMAX - SIGRTMIN)
+			die("SIGRTMIN + %d exceeds SIGRTMAX\n", b->signal);
+
+		sigaddset(&blocksigmask, SIGRTMIN + b->signal);
+	}
+
+	/* handle terminating signals */
 	sa.sa_flags = SA_RESTART;
 	sigemptyset(&sa.sa_mask);
 	sa.sa_handler = terminate;
@@ -99,12 +115,9 @@ setupsigs(void)
 	sa.sa_flags = SA_NODEFER | SA_RESTART | SA_SIGINFO;
 	sa.sa_mask = blocksigmask;
 	sa.sa_sigaction = sighandler;
-	for (b = blks; b->fn; b++) {
-		if (SIGRTMIN + b->signal > SIGRTMAX)
-			die("SIGRTMIN + %d exceeds SIGRTMAX\n", b->signal);
-		else if (b->signal > 0)
+	for (b = blks; b->fn; b++)
+		if (b->signal > 0)
 			sigaction(SIGRTMIN + b->signal, &sa, NULL);
-	}
 }
 
 int
