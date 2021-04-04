@@ -49,11 +49,13 @@ mpd_tag(struct Block *b)
 		case MPD_STATE_PAUSE:
 		case MPD_STATE_PLAY:
 			song = mpd_run_current_song(conn);
-			str = mpd_song_get_tag(song, b->u.i, 0);
+			snprintf(buf, sizeof(buf), "%s",
+			         mpd_song_get_tag(song, b->u.i, 0));
+			str = buf;
 			mpd_song_free(song);
-			break;
 		case MPD_STATE_STOP:
 		default:
+			break;
 		}
 		mpd_status_free(status);
 	}
