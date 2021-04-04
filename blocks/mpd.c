@@ -29,6 +29,12 @@ mpd(struct Block *b)
 	if (!conn && openconn() != 0)
 		return snprintf(b->curstr, BLOCKLEN, b->fmt, "");
 
+	if (mpd_connection_get_error(conn)) {
+		mpd_connection_free(conn);
+		if (openconn() != 0)
+			return snprintf(b->curstr, BLOCKLEN, b->fmt, "");
+	}
+
 	if (mpd_send_status(conn))
 		status = mpd_recv_status(conn);
 
