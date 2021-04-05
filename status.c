@@ -146,13 +146,13 @@ main(int argc, char *argv[])
 			updateblock(b);
 	updatestatus();
 
-	for (; !done; sleep(1))
-		for (b = blks; b->fn; b++) {
+	for (; !done; sleep(15)) {
+		for (b = blks; b->fn; b++)
 			if (b->interval > 0)
 				updateblock(b);
-			if (dirty)
-				updatestatus();
-		}
+		if (dirty)
+			updatestatus();
+	}
 
 	if (!dflag) {
 		XStoreName(dpy, DefaultRootWindow(dpy), NULL);
