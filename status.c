@@ -1,6 +1,7 @@
 /* See LICENSE for license details. */
 #include <signal.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
@@ -12,7 +13,6 @@
 
 #define STATUSLEN ((LEN(blks) - 1) * BLOCKLEN + 1)
 
-static int done = 0;
 static int dflag = 0;
 char buf[BLOCKLEN - BLOCKPAD];
 
@@ -23,7 +23,12 @@ static sigset_t blocksigmask;
 static void
 terminate(int signo)
 {
-	done = 1;
+	if (!dflag) {
+		XStoreName(dpy, DefaultRootWindow(dpy), NULL);
+		XCloseDisplay(dpy);
+	}
+
+	exit(0);
 }
 
 static void
@@ -85,9 +90,6 @@ setupsigs(void)
 
 	/* add signals to blocksigmask */
 	sigemptyset(&blocksigmask);
-	sigaddset(&blocksigmask, SIGHUP);
-	sigaddset(&blocksigmask, SIGINT);
-	sigaddset(&blocksigmask, SIGTERM);
 	for (b = blks; b->fn; b++) {
 		if (b->signal <= 0)
 			continue;
@@ -120,11 +122,39 @@ setupsigs(void)
 			sigaction(SIGRTMIN + b->signal, &sa, NULL);
 }
 
+static void
+statusloop(void)
+{
+	unsigned int i;
+	struct Block *b;
+	struct timespec t;
+
+	sigprocmask(SIG_BLOCK, &blocksigmask, NULL);
+
+	/* initialize blocks before first print */
+	for (b = blks; b->fn; b++)
+		if (b->interval != -1)
+			updateblock(b);
+	updatestatus();
+
+	for (i = 1; ; (++i == 0? i++ : i)) {
+		sigprocmask(SIG_UNBLOCK, &blocksigmask, NULL);
+		t.tv_sec = INTERVAL_SEC;
+		t.tv_nsec = INTERVAL_NANO;
+		while (nanosleep(&t, &t) == -1);
+		sigprocmask(SIG_BLOCK, &blocksigmask, NULL);
+
+		for (b = blks; b->fn; b++)
+			if (b->interval > 0 && i % b->interval == 0)
+				updateblock(b);
+		if (dirty)
+			updatestatus();
+	}
+}
+
 int
 main(int argc, char *argv[])
 {
-	struct Block *b;
-
 	if (argc > 2)
 		die("usage: %s [-d]\n", argv[0]);
 
@@ -140,24 +170,7 @@ main(int argc, char *argv[])
 	if (!dflag && !(dpy = XOpenDisplay(NULL)))
 		die("XOpenDisplay: can't open display\n");
 
-	/* initialize blocks before first print */
-	for (b = blks; b->fn; b++)
-		if (b->interval != -1)
-			updateblock(b);
-	updatestatus();
-
-	for (; !done; sleep(15)) {
-		for (b = blks; b->fn; b++)
-			if (b->interval > 0)
-				updateblock(b);
-		if (dirty)
-			updatestatus();
-	}
-
-	if (!dflag) {
-		XStoreName(dpy, DefaultRootWindow(dpy), NULL);
-		XCloseDisplay(dpy);
-	}
+	statusloop();
 
 	return 0;
 }
