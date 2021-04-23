@@ -13,12 +13,12 @@
 
 #define STATUSLEN ((LEN(blks) - 1) * BLOCKLEN + 1)
 
-static int dflag = 0;
 char buf[BLOCKLEN - BLOCKPAD];
 
 static Display *dpy;
-static struct Block *dirty;
+static int dflag = 0;
 static sigset_t blocksigmask;
+static struct Block *dirty;
 
 static void
 terminate(int signo)
@@ -137,7 +137,7 @@ statusloop(void)
 			updateblock(b);
 	updatestatus();
 
-	for (i = 1; ; (++i == 0? i++ : i)) {
+	for (i = 1; ; i++) {
 		sigprocmask(SIG_UNBLOCK, &blocksigmask, NULL);
 		t.tv_sec = INTERVAL_SEC;
 		t.tv_nsec = INTERVAL_NANO;
