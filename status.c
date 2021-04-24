@@ -155,14 +155,24 @@ statusloop(void)
 int
 main(int argc, char *argv[])
 {
-	if (argc > 2)
-		die("usage: %s [-d]\n", argv[0]);
+	int i;
+	char *argv0 = *argv;
 
-	for (;argc && *argv; argc--) {
-		switch ((argv++)[0][1]) {
-		case 'd':
-			dflag = 1;
+	for (argv++; --argc && *argv && argv[0][0] == '-' && argv[0][1]; argv++) {
+		if (argv[0][1] == '-' && argv[0][2] == '\0') {
+			argv++;
+			argc--;
+			break;
 		}
+
+		for (i = 1; argv[0][i]; i++)
+			switch (argv[0][i]) {
+			case 'd':
+				dflag = 1;
+				break;
+			default:
+				die("usage: %s [-d]\n", argv0);
+			}
 	}
 
 	setupsigs();
