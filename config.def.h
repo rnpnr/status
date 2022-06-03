@@ -1,4 +1,5 @@
 #include "blocks/battery.h"
+#include "blocks/blight_linux.h"
 #include "blocks/gettime.h"
 #include "blocks/mpd.h"
 #include "blocks/volume.h"
@@ -24,6 +25,7 @@ struct Block blks[] = {
 	{ mpd_tag,   "[ %s ",               0,         1,      { .i = MPD_TAG_ARTIST } },
 	{ mpd_tag,   "- %s ]",              0,         1,      { .i = MPD_TAG_TITLE } },
 	{ batinfo,   "[ %s ]",              30,        0,      { .s = "BAT0" } },
+	{ blight,    "[ %s ]",              0,         3,      { .s = "intel_backlight" } },
 	{ getvol,    "[ %s ]",              0,         2,      { .s = "Speaker" } },
 	{ gettime,   "[ %R ]",              20,        0,      {0} },
 	{ NULL },
