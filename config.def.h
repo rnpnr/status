@@ -17,16 +17,25 @@ const char *mpdhost = "localhost";
  * output is specified as an arg */
 const char *alsacard = "default";
 
-/* status block definitions */
-/* interval * INTERVAL above gives actual update interval, 0 only updates
- * at the start and when signaled, -1 only updates when signaled  */
+/* status block definitions
+ *
+ * function  description                    arg (ex)
+ *
+ * batinfo   battery percentage and status  (.s) battery name (BAT0)
+ *                                          0 on OpenBSD
+ * blight    backlight percentage           (.s) backlight name (intel_backlight)
+ * gettime   date and time                  0
+ * getvol    ALSA volume percentage         (.s) sink name (Speaker)
+ * mpd_tag   reads tag from current song    (.i) enum mpd_tag_type (MPD_TAG_TITLE)
+ * script    run specified script           (.s) full script (echo foo | bar)
+ *
+ *
+ * interval * INTERVAL above gives actual update interval, 0 only updates
+ * at the start and when signaled, -1 only updates when signaled
+ */
 struct Block blks[] = {
-/*        fn         fmt                    interval   signal  arg */
-	{ mpd_tag,   "[ %s ",               0,         1,      { .i = MPD_TAG_ARTIST } },
-	{ mpd_tag,   "- %s ]",              0,         1,      { .i = MPD_TAG_TITLE } },
-	{ batinfo,   "[ %s ]",              30,        0,      { .s = "BAT0" } },
-	{ blight,    "[ %s ]",              0,         3,      { .s = "intel_backlight" } },
-	{ getvol,    "[ %s ]",              0,         2,      { .s = "Speaker" } },
-	{ gettime,   "[ %R ]",              20,        0,      {0} },
+/*	  fn         fmt        interval  signal  arg */
+	{ batinfo,   "[ %s ]",  30,       0,      { .s = "BAT0" } },
+	{ gettime,   "[ %R ]",  20,       0,      {0} },
 	{ NULL },
 };
