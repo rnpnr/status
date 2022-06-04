@@ -18,7 +18,7 @@ status: $(OBJ)
 	$(CC) -o $@ $(OBJ) $(LDFLAGS)
 
 clean:
-	rm -f blocks/*.o *.o status
+	rm -f $(OBJ) status
 
 install: all
 	mkdir -p $(DESTDIR)$(PREFIX)/bin

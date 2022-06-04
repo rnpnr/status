@@ -1,15 +1,13 @@
 /* See LICENSE for license details. */
+#include <alsa/asoundlib.h>
+#include <alsa/mixer.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../status.h"
-#include "../util.h"
+#include "../../status.h"
+#include "../../util.h"
 #include "volume.h"
-
-#if defined(__linux__)
-#include <alsa/asoundlib.h>
-#include <alsa/mixer.h>
 
 size_t
 getvol(struct Block *b)
@@ -56,4 +54,3 @@ getvol(struct Block *b)
 
 	return snprintf(b->curstr, LEN(b->curstr), b->fmt, str);
 }
-#endif

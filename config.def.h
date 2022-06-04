@@ -1,8 +1,9 @@
-#include "blocks/battery.h"
-#include "blocks/blight_linux.h"
 #include "blocks/gettime.h"
+#include "blocks/linux/battery.h"
+#include "blocks/linux/blight.h"
+#include "blocks/linux/volume.h"
 #include "blocks/mpd.h"
-#include "blocks/volume.h"
+#include "blocks/script.h"
 
 /* update intervals: SEC+NANO gives sleep interval */
 /* SEC must be >= 0 and 0 <= NANO <= 999999999 */

@@ -3,15 +3,14 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../status.h"
-#include "../util.h"
+#include "../../status.h"
+#include "../../util.h"
 #include "battery.h"
 
-#if defined(__linux__)
 size_t
 batinfo(struct Block *b)
 {
-	static char path[PATH_MAX], state[12];
+	char path[PATH_MAX], state[12];
 	int perc;
 	unsigned long power_now, energy_now, h, m;
 	double timeleft;
@@ -45,38 +44,3 @@ batinfo(struct Block *b)
 
 	return snprintf(b->curstr, LEN(b->curstr), b->fmt, buf);
 }
-
-#elif defined(__OpenBSD__)
-#include <fcntl.h>
-#include <machine/apmvar.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
-
-size_t
-batinfo(struct Block *b)
-{
-	struct apm_power_info pi;
-	int fd;
-
-	if ((fd = open("/dev/apm", O_RDONLY)) < 0)
-		die("open\n");
-
-	if ((ioctl(fd, APM_IOC_GETPOWER, &pi)) < 0) {
-		close(fd);
-		die("ioctl\n");
-	}
-	close(fd);
-
-	switch (pi.ac_state) {
-	case APM_AC_OFF:
-		snprintf(buf, sizeof(buf), "%d%% (%d:%02d)", pi.battery_life,
-			pi.minutes_left / 60, pi.minutes_left % 60);
-	case APM_AC_ON:
-	case APM_BATT_CHARGING:
-		snprintf(buf, sizeof(buf), "%d%% (ac)", pi.battery_life);
-	default:
-		snprintf(buf, sizeof(buf), "%d%% (unknown)", pi.battery_life);
-	}
-	return snprintf(b->curstr, LEN(b->curstr), b->fmt, buf);
-}
-#endif

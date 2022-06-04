@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../status.h"
-#include "../util.h"
-#include "blight_linux.h"
+#include "../../status.h"
+#include "../../util.h"
+#include "blight.h"
 
 size_t
 blight(struct Block *b)

@@ -1,9 +1,9 @@
 SRC =\
-	blocks/battery.c\
-	blocks/blight_linux.c\
 	blocks/gettime.c\
-	blocks/mpd.c\
-	blocks/volume.c
+	blocks/linux/battery.c\
+	blocks/linux/blight.c\
+	blocks/linux/volume.c\
+	blocks/mpd.c
 
 PREFIX = /
 
