@@ -38,7 +38,7 @@ batinfo(struct Block *b)
 		h = timeleft;
 		m = (timeleft - (double)h) * 60;
 
-		snprintf(buf, sizeof(buf), "%d%% (%d:%02d)", perc, h, m);
+		snprintf(buf, sizeof(buf), "%d%% (%lu:%02lu)", perc, h, m);
 	} else
 		snprintf(buf, sizeof(buf), "%d%% (%s)", perc, state);
 
