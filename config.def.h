@@ -25,7 +25,7 @@ const char *alsacard = "default";
  * batinfo   battery percentage and status  (.s) battery name (BAT0)
  *                                          0 on OpenBSD
  * blight    backlight percentage           (.s) backlight name (intel_backlight)
- * gettime   date and time                  0
+ * date      date and time                  (.s) time fmt string (%R)
  * getvol    ALSA volume percentage         (.s) sink name (Speaker)
  * mpd_tag   reads tag from current song    (.i) enum mpd_tag_type (MPD_TAG_TITLE)
  * script    run specified script           (.s) full script (echo foo | bar)
@@ -37,6 +37,6 @@ const char *alsacard = "default";
 struct Block blks[] = {
 /*	  fn         fmt        interval  signal  arg */
 	{ batinfo,   "[ %s ]",  30,       0,      { .s = "BAT0" } },
-	{ gettime,   "[ %R ]",  20,       0,      {0} },
+	{ date,      "[ %s ]",  20,       0,      { .s = "%R" } },
 	{ NULL },
 };

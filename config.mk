@@ -1,5 +1,5 @@
 SRC =\
-	blocks/gettime.c\
+	blocks/date.c\
 	blocks/linux/battery.c\
 	blocks/linux/blight.c\
 	blocks/linux/volume.c\
