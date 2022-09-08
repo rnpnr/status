@@ -14,11 +14,9 @@ script(struct Block *b)
 	if ((fp = popen(b->u.s, "r")) == NULL)
 		die("popen()\n");
 
-	fgets(buf, sizeof(buf), fp);
+	if (fgets(buf, sizeof(buf), fp) != NULL)
+		buf[strcspn(buf, "\n")] = 0;
 	pclose(fp);
-
-	if (buf[strlen(buf) - 1] == '\n')
-		buf[strlen(buf) - 1] = 0;
 
 	return snprintf(b->curstr, LEN(b->curstr), b->fmt, buf);
 }
