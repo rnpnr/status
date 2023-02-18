@@ -1,4 +1,4 @@
-#include "blocks/gettime.h"
+#include "blocks/date.h"
 #include "blocks/linux/battery.h"
 #include "blocks/linux/blight.h"
 #include "blocks/linux/volume.h"
@@ -10,25 +10,25 @@
 #define INTERVAL_SEC  1
 #define INTERVAL_NANO 0
 
-/* host for connecting to MPD, set to NULL for the MPD_HOST env variable */
-const char *mpdhost = "localhost";
+/* mpd_arg.host can be NULL to use the MPD_HOST env variable */
+const enum mpd_tag_type tags[] = { MPD_TAG_TITLE, MPD_TAG_ARTIST };
+const struct mpd_arg ma = { "localhost", "|", tags, 2 };
 
-/* alsa card and output */
-/* card is found with 'aplay -L', default is probably correct
- * output is specified as an arg */
-const char *alsacard = "default";
+/* alsa card and sink */
+/* card is found with 'aplay -L', default is probably correct */
+const struct vol_arg va = { "default", "Speaker" };
 
 /* status block definitions
  *
  * function  description                    arg (ex)
  *
- * batinfo   battery percentage and status  (.s) battery name (BAT0)
+ * batinfo   battery percentage and status  (char *) battery name (BAT0)
  *                                          0 on OpenBSD
- * blight    backlight percentage           (.s) backlight name (intel_backlight)
- * date      date and time                  (.s) time fmt string (%R)
- * getvol    ALSA volume percentage         (.s) sink name (Speaker)
- * mpd_tag   reads tag from current song    (.i) enum mpd_tag_type (MPD_TAG_TITLE)
- * script    run specified script           (.s) full script (echo foo | bar)
+ * blight    backlight percentage           (char *) backlight name (intel_backlight)
+ * date      date and time                  (char *) time fmt string (%R)
+ * volume    ALSA volume percentage         (struct vol_arg *)
+ * mpd_tag   reads tag from current song    (struct mpd_arg *)
+ * script    run specified script           (char *) full script (echo foo | bar)
  *
  *
  * interval * INTERVAL above gives actual update interval, 0 only updates
@@ -36,7 +36,7 @@ const char *alsacard = "default";
  */
 struct Block blks[] = {
 /*	  fn         fmt        interval  signal  arg */
-	{ batinfo,   "[ %s ]",  30,       0,      { .s = "BAT0" } },
-	{ date,      "[ %s ]",  20,       0,      { .s = "%R" } },
+	{ batinfo,   "[ %s ]",  30,       0,      "BAT0" },
+	{ date,      "[ %s ]",  20,       0,      "%R" },
 	{ NULL },
 };

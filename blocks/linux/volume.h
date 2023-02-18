@@ -1,2 +1,6 @@
-extern const char *alsacard;
-size_t getvol(struct Block *b);
+struct vol_arg {
+	const char *card;
+	const char *sink;
+};
+
+size_t volume(struct Block *b);

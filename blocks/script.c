@@ -11,7 +11,7 @@ script(struct Block *b)
 {
 	FILE *fp;
 
-	if ((fp = popen(b->u.s, "r")) == NULL)
+	if ((fp = popen(b->arg, "r")) == NULL)
 		die("popen()\n");
 
 	if (fgets(buf, sizeof(buf), fp) != NULL)

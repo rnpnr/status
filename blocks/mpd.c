@@ -9,11 +9,11 @@
 static struct mpd_connection *conn;
 
 static int
-open_conn(void)
+open_conn(const char *host)
 {
-	conn = mpd_connection_new(mpdhost, 0, 0);
+	conn = mpd_connection_new(host, 0, 0);
 	if (!mpd_connection_get_error(conn)
-	&& mpd_connection_set_keepalive(conn, true)) {
+	    && mpd_connection_set_keepalive(conn, true)) {
 		mpd_send_idle(conn);
 		return 0;
 	}
@@ -23,13 +23,13 @@ open_conn(void)
 }
 
 static int
-check_conn(void)
+check_conn(const char *host)
 {
 	if (!mpd_connection_get_error(conn))
 		return 0;
 
 	mpd_connection_free(conn);
-	return open_conn();
+	return open_conn(host);
 }
 
 size_t
@@ -37,9 +37,11 @@ mpd_tag(struct Block *b)
 {
 	struct mpd_song *song = NULL;
 	struct mpd_status *status = NULL;
+	const struct mpd_arg *ma = b->arg;
+	size_t i, len = 0;
 	const char *str = "";
 
-	if ((!conn && open_conn() != 0) || check_conn() != 0)
+	if ((!conn && open_conn(ma->host) != 0) || check_conn(ma->host) != 0)
 		return snprintf(b->curstr, LEN(b->curstr), b->fmt, str);
 
 	mpd_run_noidle(conn);
@@ -49,8 +51,15 @@ mpd_tag(struct Block *b)
 		case MPD_STATE_PAUSE:
 		case MPD_STATE_PLAY:
 			song = mpd_run_current_song(conn);
-			snprintf(buf, sizeof(buf), "%s",
-			         mpd_song_get_tag(song, b->u.i, 0));
+			for (i = 0; i < ma->ntags; i++) {
+				if (len != 0)
+					len += snprintf(buf + len,
+					                sizeof(buf) - len, "%s",
+					                ma->sep ? ma->sep : "");
+				len += snprintf(
+				    buf + len, sizeof(buf) - len, "%s",
+				    mpd_song_get_tag(song, ma->tags[i], 0));
+			}
 			str = buf;
 			mpd_song_free(song);
 		case MPD_STATE_STOP:
