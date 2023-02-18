@@ -14,5 +14,5 @@ INCS = -I$(X11INC) -I/usr/local/include
 LIBS = -L$(X11LIB) -L/usr/local/lib -lmpdclient -lX11 -lasound
 
 CPPFLAGS = -D_POSIX_C_SOURCE
-CFLAGS = -O2 -std=c99 -Wall -pedantic $(CPPFLAGS) $(INCS)
-LDFLAGS = $(LIBS)
+CFLAGS = -O2 -std=c99 -Wall -pedantic
+LDFLAGS = -s

@@ -10,12 +10,12 @@ config.h:
 	cp config.def.h config.h
 
 .c.o:
-	$(CC) $(CFLAGS) -o $@ -c $<
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(INCS) -o $@ -c $<
 
 $(OBJ): config.h
 
 status: $(OBJ)
-	$(CC) -o $@ $(OBJ) $(LDFLAGS)
+	$(CC) -o $@ $(OBJ) $(LIBS) $(LDFLAGS)
 
 clean:
 	rm -f $(OBJ) status
