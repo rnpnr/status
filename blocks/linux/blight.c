@@ -14,11 +14,11 @@ blight(struct Block *b)
 	int perc;
 	unsigned long max, now;
 
-	snprintf(path, sizeof(path), "/sys/class/backlight/%s/brightness", b->u.s);
+	snprintf(path, sizeof(path), "/sys/class/backlight/%s/brightness", (char *)b->arg);
 	if (pscanf(path, "%lu", &now) != 1)
 		now = 0;
 
-	snprintf(path, sizeof(path), "/sys/class/backlight/%s/max_brightness", b->u.s);
+	snprintf(path, sizeof(path), "/sys/class/backlight/%s/max_brightness", (char *)b->arg);
 	if (pscanf(path, "%lu", &max) != 1)
 		/* avoid divison by 0 */
 		max = 1;
