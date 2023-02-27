@@ -18,12 +18,14 @@ const struct mpd_arg ma = { "localhost", "|", tags, 2 };
 /* card is found with 'aplay -L', default is probably correct */
 const struct vol_arg va = { "default", "Speaker" };
 
+/* check battery.h for info */
+const struct bat_arg ba = { "BAT0", NULL, NULL, -1 };
+
 /* status block definitions
  *
  * function  description                    arg (ex)
  *
- * batinfo   battery percentage and status  (char *) battery name (BAT0)
- *                                          0 on OpenBSD
+ * batinfo   battery percentage and status  (struct bat_arg *)
  * blight    backlight percentage           (char *) backlight name (intel_backlight)
  * date      date and time                  (char *) time fmt string (%R)
  * volume    ALSA volume percentage         (struct vol_arg *)
@@ -36,7 +38,7 @@ const struct vol_arg va = { "default", "Speaker" };
  */
 struct Block blks[] = {
 /*	  fn         fmt        interval  signal  arg */
-	{ batinfo,   "[ %s ]",  30,       0,      "BAT0" },
+	{ batinfo,   "[ %s ]",  30,       0,      &ba },
 	{ date,      "[ %s ]",  20,       0,      "%R" },
 	{ NULL },
 };
