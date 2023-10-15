@@ -145,11 +145,11 @@ statusinit(void)
 static void
 statusloop(void)
 {
-	unsigned int i;
+	unsigned int i = 0;
 	struct Block *b;
 	struct timespec t;
 
-	for (i = 1; ; i++) {
+	for (;;) {
 		sigprocmask(SIG_UNBLOCK, &blocksigmask, NULL);
 		t.tv_sec = INTERVAL_SEC;
 		t.tv_nsec = INTERVAL_NANO;
@@ -161,6 +161,7 @@ statusloop(void)
 				updateblock(b);
 		if (dirty)
 			updatestatus();
+		i++;
 	}
 }
 
