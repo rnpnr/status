@@ -65,7 +65,7 @@ updatestatus(void)
 	}
 
 	XStoreName(dpy, DefaultRootWindow(dpy), status);
-	XSync(dpy, False);	
+	XSync(dpy, False);
 }
 
 static void
@@ -120,6 +120,26 @@ setupsigs(void)
 	for (b = blks; b->fn; b++)
 		if (b->signal > 0)
 			sigaction(SIGRTMIN + b->signal, &sa, NULL);
+
+	/* start with signals blocked */
+	sigprocmask(SIG_BLOCK, &blocksigmask, NULL);
+}
+
+static void
+statusinit(void)
+{
+	struct Block *b;
+
+	setupsigs();
+
+	if (!dflag && !(dpy = XOpenDisplay(NULL)))
+		die("XOpenDisplay: can't open display\n");
+
+	/* initialize blocks before first print */
+	for (b = blks; b->fn; b++)
+		if (b->interval != -1)
+			updateblock(b);
+	updatestatus();
 }
 
 static void
@@ -128,14 +148,6 @@ statusloop(void)
 	unsigned int i;
 	struct Block *b;
 	struct timespec t;
-
-	sigprocmask(SIG_BLOCK, &blocksigmask, NULL);
-
-	/* initialize blocks before first print */
-	for (b = blks; b->fn; b++)
-		if (b->interval != -1)
-			updateblock(b);
-	updatestatus();
 
 	for (i = 1; ; i++) {
 		sigprocmask(SIG_UNBLOCK, &blocksigmask, NULL);
@@ -175,11 +187,7 @@ main(int argc, char *argv[])
 			}
 	}
 
-	setupsigs();
-
-	if (!dflag && !(dpy = XOpenDisplay(NULL)))
-		die("XOpenDisplay: can't open display\n");
-
+	statusinit();
 	statusloop();
 
 	return 0;
