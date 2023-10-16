@@ -71,5 +71,5 @@ mpd_tag(struct Block *b)
 
 	mpd_send_idle(conn);
 
-	return snprintf(b->curstr, LEN(b->curstr), b->fmt, str);
+	return len? snprintf(b->curstr, LEN(b->curstr), b->fmt, str) : 0;
 }
