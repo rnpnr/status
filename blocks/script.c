@@ -18,5 +18,5 @@ script(struct Block *b)
 		buf[strcspn(buf, "\n")] = 0;
 	pclose(fp);
 
-	return snprintf(b->curstr, LEN(b->curstr), b->fmt, buf);
+	return buf[0]? snprintf(b->curstr, LEN(b->curstr), b->fmt, buf) : 0;
 }
