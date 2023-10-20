@@ -35,8 +35,11 @@ static void
 updateblock(struct Block *b)
 {
 	b->len = b->fn(b);
-	if (memcmp(b->curstr, b->prevstr, b->len)) {
-		memcpy(b->prevstr, b->curstr, b->len);
+	if (b->len == 0 || memcmp(b->curstr, b->prevstr, b->len)) {
+		if (b->len == 0)
+			b->prevstr[0] = b->curstr[0] = 0;
+		else
+			memcpy(b->prevstr, b->curstr, b->len);
 		if (!dirty || b < dirty)
 			dirty = b;
 	}
