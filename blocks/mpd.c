@@ -39,10 +39,9 @@ mpd_tag(struct Block *b)
 	struct mpd_status *status = NULL;
 	const struct mpd_arg *ma = b->arg;
 	size_t i, len = 0;
-	const char *str = "";
 
 	if ((!conn && open_conn(ma->host) != 0) || check_conn(ma->host) != 0)
-		return snprintf(b->curstr, LEN(b->curstr), b->fmt, str);
+		return 0;
 
 	mpd_run_noidle(conn);
 
@@ -60,7 +59,6 @@ mpd_tag(struct Block *b)
 				    buf + len, sizeof(buf) - len, "%s",
 				    mpd_song_get_tag(song, ma->tags[i], 0));
 			}
-			str = buf;
 			mpd_song_free(song);
 		case MPD_STATE_STOP:
 		default:
@@ -71,5 +69,5 @@ mpd_tag(struct Block *b)
 
 	mpd_send_idle(conn);
 
-	return len? snprintf(b->curstr, LEN(b->curstr), b->fmt, str) : 0;
+	return len? snprintf(b->curstr, LEN(b->curstr), b->fmt, buf) : 0;
 }
