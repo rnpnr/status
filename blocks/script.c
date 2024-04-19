@@ -1,12 +1,5 @@
 /* See LICENSE for license details. */
-#include <stdio.h>
-#include <string.h>
-
-#include "../status.h"
-#include "../util.h"
-#include "script.h"
-
-size_t
+static size_t
 script(struct Block *b)
 {
 	FILE *fp;

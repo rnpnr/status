@@ -7,18 +7,30 @@
 #include <unistd.h>
 #include <X11/Xlib.h>
 
-#include "status.h"
-#include "util.h"
-#include "config.h"
-
+#define LEN(a) (sizeof(a) / sizeof(*a))
+#define BLOCKLEN 128
+#define BLOCKPAD 4
 #define STATUSLEN ((LEN(blks) - 1) * BLOCKLEN + 1)
 
-char buf[BLOCKLEN - BLOCKPAD];
+struct Block {
+	size_t (*const fn)(struct Block *b);
+	const char *fmt;
+	const int interval;
+	const int signal;
+	const void *arg;
+	char curstr[BLOCKLEN];
+	char prevstr[BLOCKLEN];
+	size_t len;
+};
 
+static char buf[BLOCKLEN - BLOCKPAD];
 static Display *dpy;
 static int dflag = 0;
 static sigset_t blocksigmask;
 static struct Block *dirty;
+
+#include  "util.c"
+#include "config.h"
 
 static void
 terminate(int signo)

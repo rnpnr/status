@@ -1,12 +1,5 @@
 /* See LICENSE for license details. */
-#include <stdio.h>
-#include <time.h>
-
-#include "../status.h"
-#include "../util.h"
-#include "date.h"
-
-size_t
+static size_t
 date(struct Block *b)
 {
 	time_t t = time(NULL);

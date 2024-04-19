@@ -1,13 +1,7 @@
 /* See LICENSE for license details. */
 #include <limits.h>
-#include <stdio.h>
-#include <string.h>
 
-#include "../../status.h"
-#include "../../util.h"
-#include "blight.h"
-
-size_t
+static size_t
 blight(struct Block *b)
 {
 	char path[PATH_MAX];

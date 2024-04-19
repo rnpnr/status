@@ -1,16 +1,17 @@
 /* See LICENSE for license details. */
 #include <limits.h>
-#include <stdio.h>
-#include <string.h>
 
-#include "../../status.h"
-#include "../../util.h"
-#include "battery.h"
+struct bat_arg {
+	char *bat; /* BAT name (ex. BAT0) */
+	char *pre; /* prefix for percentages less than thres */
+	char *suf; /* suffix for percentages less than thres */
+	int thres; /* % threshold to consider low (-1 to disable) */
+};
 
-size_t
+static size_t
 batinfo(struct Block *b)
 {
-	const struct bat_arg *ba = b->arg;
+	struct bat_arg *ba = b->arg;
 	char *pre = ba->pre ? ba->pre : "";
 	char *suf = ba->suf ? ba->suf : "";
 	char path[PATH_MAX], state[12];

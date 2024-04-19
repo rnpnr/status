@@ -1,12 +1,7 @@
 /* See LICENSE for license details. */
 #include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
 
-#include "status.h"
-#include "util.h"
-
-void
+static void
 die(const char *errstr, ...)
 {
 	va_list ap;
@@ -17,7 +12,7 @@ die(const char *errstr, ...)
 	exit(1);
 }
 
-int
+static int
 pscanf(const char *path, const char *fmt, ...)
 {
 	FILE *fp;

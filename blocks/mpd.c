@@ -1,10 +1,13 @@
 /* See LICENSE for license details. */
 #include <mpd/client.h>
-#include <stdio.h>
+#include <mpd/tag.h>
 
-#include "../status.h"
-#include "../util.h"
-#include "mpd.h"
+struct mpd_arg {
+	const char *host;
+	const char *sep;
+	const enum mpd_tag_type *tags;
+	size_t ntags;
+};
 
 static struct mpd_connection *conn;
 
@@ -32,12 +35,12 @@ check_conn(const char *host)
 	return open_conn(host);
 }
 
-size_t
+static size_t
 mpd_tag(struct Block *b)
 {
 	struct mpd_song *song = NULL;
 	struct mpd_status *status = NULL;
-	const struct mpd_arg *ma = b->arg;
+	struct mpd_arg *ma = b->arg;
 	size_t i, len = 0;
 
 	if ((!conn && open_conn(ma->host) != 0) || check_conn(ma->host) != 0)

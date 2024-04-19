@@ -2,20 +2,19 @@
 #include <alsa/asoundlib.h>
 #include <alsa/mixer.h>
 #include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
 
-#include "../../status.h"
-#include "../../util.h"
-#include "volume.h"
+struct vol_arg {
+	const char *card;
+	const char *sink;
+};
 
-size_t
+static size_t
 volume(struct Block *b)
 {
 	snd_mixer_t *handle;
 	snd_mixer_selem_id_t *sid;
 	snd_mixer_elem_t *elem;
-	const struct vol_arg *va = b->arg;
+	struct vol_arg *va = b->arg;
 	const char *str = "muted";
 
 	int notmuted;
