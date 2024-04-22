@@ -13,11 +13,11 @@
 #define STATUSLEN ((LEN(blks) - 1) * BLOCKLEN + 1)
 
 struct Block {
-	size_t (*const fn)(struct Block *b);
+	size_t (*fn)(struct Block *b);
 	const char *fmt;
-	const int interval;
-	const int signal;
-	const void *arg;
+	int interval;
+	int signal;
+	void *arg;
 	char curstr[BLOCKLEN];
 	char prevstr[BLOCKLEN];
 	size_t len;
