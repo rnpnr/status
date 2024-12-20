@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <X11/Xlib.h>
 
+#define ABS(a) ((a) < 0 ? -(a) : (a))
 #define LEN(a) (sizeof(a) / sizeof(*a))
 #define BLOCKLEN 128
 #define BLOCKPAD 4
