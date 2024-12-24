@@ -1,7 +1,7 @@
 #!/bin/sh
 
 cflags="-march=native -O3 -std=c11 -Wall -pedantic"
-cflags="$cflags -D_XOPEN_SOURCE=500"
+cflags="$cflags -D_XOPEN_SOURCE=700"
 cflags="$cflags -I /usr/X11R6/include"
 #cflags="${cflags} -O0 -ggdb -D_DEBUG"
 
