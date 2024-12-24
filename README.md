@@ -3,9 +3,18 @@ status
 
 A status line program for dwm.
 
-Inspired by and drawing from
-[dsblocks](https://github.com/ashish-yadav11/dsblocks) and
-[slstatus](https://tools.suckless.org/slstatus/).
+Overview
+--------
+The status line is made up of individual "blocks". Blocks update
+based on a timer interval or an inotify CLOSE_WRITE notification.
+Each block has an `_init()` function which is called once at startup
+which facilitates the creation and initialization of any static
+data and any needed registration with inotify. Afterwords a blocks
+'_update()' function is called on every program tick with a `dt`
+value and is expected to return with a true or false value based
+on if they updated or not. Blocks being called from the inotify
+event dispatcher are passed the special value `dt = 0`. This way
+blocks are free to determine for themselves when they should update.
 
 Installation
 ------------
