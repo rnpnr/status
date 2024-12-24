@@ -14,7 +14,7 @@
 // static struct vol_arg va = { "default", "Speaker" };
 
 /* check blocks/xxx/battery_info.c for info */
-static struct bat_arg ba  = {.bat = "BAT0", .interval = 30};
+static struct bat_arg ba  = {.bat = s8("BAT0"), .interval = 30};
 
 /* check blocks/date.c for info */
 static struct date_arg da = {.fmt = "%R", .interval = 30};

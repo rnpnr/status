@@ -62,6 +62,9 @@ typedef size_t    usize;
 
 typedef struct { u8 *beg, *end; } Arena;
 
+#define s8(s)  (s8){.len = sizeof(s) - 1,  .data = (u8 *)s}
+typedef struct { size len; u8 *data; } s8;
+
 typedef struct {
 	u8  *buffer;
 	i32  capacity;
@@ -178,6 +181,24 @@ stream_alloc(Arena *a, size capacity)
 	result.buffer   = alloc(a, u8, capacity);
 	result.capacity = capacity;
 	return result;
+}
+
+static char *
+stream_ensure_c_str(Stream *s)
+{
+	ASSERT(s->write_index < s->capacity);
+	s->buffer[s->write_index] = 0;
+	return (char *)s->buffer;
+}
+
+static void
+stream_push_s8(Stream *s, s8 str)
+{
+	s->errors |= s->capacity <= (s->write_index + str.len);
+	if (!s->errors) {
+		memcpy(s->buffer + s->write_index, str.data, str.len);
+		s->write_index += str.len;
+	}
 }
 
 static void
