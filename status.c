@@ -12,8 +12,11 @@
 #include <X11/Xlib.h>
 
 #define ABS(a)         ((a) < 0 ? -(a) : (a))
+#define MIN(a, b)      ((a) < (b) ? (a) : (b))
 #define ARRAY_COUNT(a) (sizeof(a) / sizeof(*a))
 #define BLOCKLEN 128
+
+#define ISSPACE(c)     ((c) == ' ' || (c) == '\n' || (c) == '\t')
 
 #define TICK_RATE_SECONDS     1
 #define TICK_RATE_NANOSECONDS 0
@@ -101,6 +104,8 @@ static FileWatch  file_watches;
 
 static i32        dflag;
 
+i64 strtol(const char *, char **, i32);
+
 static void
 die(const char *errstr, ...)
 {
@@ -131,22 +136,26 @@ timer_update(f32 *timer, f32 interval, f32 dt)
 	return result;
 }
 
-static int
-pscanf(const char *path, const char *fmt, ...)
+static s8
+read_s8(char *path, s8 buffer)
 {
-	FILE *fp;
-	va_list ap;
-	int ret;
+	i32 fd     = open(path, O_RDONLY);
+	buffer.len = read(fd, buffer.data, buffer.len);
+	close(fd);
+	return buffer;
+}
 
-	if (!(fp = fopen(path, "r")))
-		return -1;
-
-	va_start(ap, fmt);
-	ret = vfscanf(fp, fmt, ap);
-	va_end(ap);
-	fclose(fp);
-
-	return (ret == EOF) ? -1 : ret;
+static i64
+read_i64(char *path)
+{
+	i64 result = 0;
+	char buffer[64];
+	s8 str = read_s8(path, (s8){.len = sizeof(buffer), .data = (u8 *)buffer});
+	if (str.len > 0) {
+		buffer[MIN(str.len, sizeof(buffer) - 1)] = 0;
+		result = strtol(buffer, 0, 10);
+	}
+	return result;
 }
 
 static void *
@@ -172,6 +181,25 @@ alloc_(Arena *a, size len, size align, size count)
 	void *p  = a->beg + padding;
 	a->beg  += padding + count * len;
 	return mem_clear(p, 0, count * len);
+}
+
+static b32
+s8_equal(s8 a, s8 b)
+{
+	b32 result = a.len == b.len;
+	if (result) {
+		for (size i = 0; i < a.len; i++)
+			result &= a.data[i] == b.data[i];
+	}
+	return result;
+}
+
+static s8
+s8_trim_space(s8 a)
+{
+	while (a.len > 0 && ISSPACE(a.data[0]))         { a.len--; a.data++; }
+	while (a.len > 0 && ISSPACE(a.data[a.len - 1])) { a.len--; }
+	return a;
 }
 
 static Stream

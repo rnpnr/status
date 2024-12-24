@@ -7,10 +7,7 @@ static BLOCK_UPDATE_FN(backlight_update)
 		return 0;
 
 	struct linux_backlight_data *lbd = b->user_data;
-	i64 current;
-	if (pscanf(lbd->brightness_path, "%ld", &current) != 1)
-		current = 0;
-
+	i64 current = read_i64(lbd->brightness_path);
 	f32 percent = 100 * current / (f32)lbd->max_brightness + 0.5;
 	i64 len = snprintf(buffer, sizeof(buffer), "%d%%", (i32)percent);
 	buffer[len] = 0;
@@ -30,7 +27,8 @@ static BLOCK_INIT_FN(backlight_init)
 	stream_push_s8(&path, *(s8 *)b->arg);
 	size sidx = path.write_index;
 	stream_push_s8(&path, s8("/max_brightness"));
-	if (pscanf(stream_ensure_c_str(&path), "%ld", &lbd->max_brightness) != 1)
+	lbd->max_brightness = read_i64(stream_ensure_c_str(&path));
+	if (!lbd->max_brightness)
 		die("backlight_init: failed to read max brightness\n");
 	path.write_index = sidx;
 

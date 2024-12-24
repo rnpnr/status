@@ -19,7 +19,6 @@ static BLOCK_UPDATE_FN(battery_info_update)
 
 	char *pre = ba->pre ? ba->pre : "";
 	char *suf = ba->suf ? ba->suf : "";
-	char state[12];
 
 	i32 h, m;
 	i64 power_now, energy_now;
@@ -28,24 +27,26 @@ static BLOCK_UPDATE_FN(battery_info_update)
 	size sidx = lbd->path_base.write_index;
 
 	stream_push_s8(&lbd->path_base, s8("/energy_now"));
-	if (pscanf(stream_ensure_c_str(&lbd->path_base), "%ld", &energy_now) != 1)
-		energy_now = 0;
+	energy_now = read_i64(stream_ensure_c_str(&lbd->path_base));
 	lbd->path_base.write_index = sidx;
 
 	f32 percent = (100 * energy_now / (f64)lbd->energy_full) + 0.5;
 	b32 warn    = percent < ba->thres;
 
+	char state_buffer[16] = {0};
 	stream_push_s8(&lbd->path_base, s8("/status"));
-	if (pscanf(stream_ensure_c_str(&lbd->path_base), "%12s", &state) != 1)
-		snprintf(state, sizeof(state), "Unknown");
+	s8 state = s8_trim_space(read_s8(stream_ensure_c_str(&lbd->path_base),
+	                                (s8){.len = sizeof(state_buffer),
+	                                     .data = (u8 *)state_buffer}));
+	if (state.len <= 0) state = s8("Unknown");
 	lbd->path_base.write_index = sidx;
 
 	/* NOTE(rnp): proper devices use negative power to indicate discharging but that
 	 * is not always the case. The status string can mostly be trusted */
-	if (!strcmp(state, "Discharging")) {
+	if (s8_equal(state, s8("Discharging"))) {
 		stream_push_s8(&lbd->path_base, s8("/power_now"));
-		if (pscanf(stream_ensure_c_str(&lbd->path_base), "%ld", &power_now) != 1)
-			power_now = 1;
+		power_now = read_i64(stream_ensure_c_str(&lbd->path_base));
+		if (!power_now) power_now = 1;
 		lbd->path_base.write_index = sidx;
 
 		timeleft = energy_now / (f64)ABS(power_now);
@@ -57,7 +58,7 @@ static BLOCK_UPDATE_FN(battery_info_update)
 		buffer[len] = 0;
 	} else {
 		i64 len = snprintf(buffer, sizeof(buffer), "%s%d%% (%s)%s", warn? pre : "",
-		                   (i32)percent, state, warn? suf : "");
+		                   (i32)percent, (char *)state.data, warn? suf : "");
 		buffer[len] = 0;
 	}
 	b->len = snprintf(b->data, sizeof(b->data), b->fmt, buffer);
@@ -89,7 +90,8 @@ static BLOCK_INIT_FN(battery_info_init)
 	stream_push_s8(&lbd->path_base, ba->bat);
 	size sidx = lbd->path_base.write_index;
 	stream_push_s8(&lbd->path_base, s8("/energy_full"));
-	if (pscanf(stream_ensure_c_str(&lbd->path_base), "%ld", &lbd->energy_full) != 1)
+	lbd->energy_full = read_i64(stream_ensure_c_str(&lbd->path_base));
+	if (!lbd->energy_full)
 		die("battery_info_init: failed to read battery capacity\n");
 	lbd->path_base.write_index = sidx;
 
