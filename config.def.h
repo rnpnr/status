@@ -19,12 +19,15 @@ static struct bat_arg ba  = {.bat = s8("BAT0"), .interval = 30};
 /* check blocks/date.c for info */
 static struct date_arg da = {.fmt = "%R", .interval = 30};
 
+/* backlight name (/sys/class/backlight/xxx) */
+//static s8 linux_backlight = s8("xxx");
+
 /* status block definitions
  *
  * block            description                    arg (ex)
  *
  * battery_info     battery percentage and status  (struct bat_arg *)
- * backlight        percentage                     (char *) backlight name (intel_backlight)
+ * backlight        percentage                     (s8 *) backlight name
  * date             date and time                  (struct date_arg *)
  */
 

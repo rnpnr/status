@@ -25,14 +25,19 @@ static BLOCK_INIT_FN(backlight_init)
 	b->user_data = lbd = push_struct(a, struct linux_backlight_data);
 
 	Arena tmp = *a;
-	char *path = alloc(&tmp, char, 4096);
-	snprintf(path, 4096, "/sys/class/backlight/%s/max_brightness", (char *)b->arg);
-	if (pscanf(path, "%ld", &lbd->max_brightness) != 1)
+	Stream path = stream_alloc(&tmp, KB(1));
+	stream_push_s8(&path, s8("/sys/class/backlight/"));
+	stream_push_s8(&path, *(s8 *)b->arg);
+	size sidx = path.write_index;
+	stream_push_s8(&path, s8("/max_brightness"));
+	if (pscanf(stream_ensure_c_str(&path), "%ld", &lbd->max_brightness) != 1)
 		die("backlight_init: failed to read max brightness\n");
+	path.write_index = sidx;
 
-	i64 len = snprintf(path, 4096, "/sys/class/backlight/%s/brightness", (char *)b->arg);
-	lbd->brightness_path = path;
-	a->beg += len;
+	stream_push_s8(&path, s8("/brightness"));
+	path.buffer[path.write_index++] = 0;
+	lbd->brightness_path = (char *)path.buffer;
+	a->beg += path.write_index;
 
 	backlight_update(b, 0);
 	add_file_watch(a, lbd->brightness_path, block_index, backlight_update);
