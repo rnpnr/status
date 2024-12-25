@@ -40,7 +40,9 @@ static BLOCK_UPDATE_FN(battery_info_update)
 	                                     .data = (u8 *)state_buffer}));
 	if (state.len <= 0) state = s8("Unknown");
 	lbd->path_base.write_index = sidx;
+	state.data[state.len] = 0;
 
+	i64 len;
 	/* NOTE(rnp): proper devices use negative power to indicate discharging but that
 	 * is not always the case. The status string can mostly be trusted */
 	if (s8_equal(state, s8("Discharging"))) {
@@ -53,14 +55,13 @@ static BLOCK_UPDATE_FN(battery_info_update)
 		h = timeleft;
 		m = (timeleft - (f64)h) * 60;
 
-		i64 len = snprintf(buffer, sizeof(buffer), "%s%d%% (%d:%02d)%s", warn? pre : "",
-		                   (i32)percent, h, m, warn? suf : "");
-		buffer[len] = 0;
+		len = snprintf(buffer, sizeof(buffer), "%s%d%% (%d:%02d)%s", warn? pre : "",
+		              (i32)percent, h, m, warn? suf : "");
 	} else {
-		i64 len = snprintf(buffer, sizeof(buffer), "%s%d%% (%s)%s", warn? pre : "",
-		                   (i32)percent, (char *)state.data, warn? suf : "");
-		buffer[len] = 0;
+		len = snprintf(buffer, sizeof(buffer), "%s%d%% (%s)%s", warn? pre : "",
+		               (i32)percent, (char *)state.data, warn? suf : "");
 	}
+	buffer[len] = 0;
 	b->len = snprintf(b->data, sizeof(b->data), b->fmt, buffer);
 
 	return 1;
@@ -79,11 +80,11 @@ static BLOCK_INIT_FN(battery_info_init)
 	b->user_data = lbd = push_struct(a, struct linux_battery_data);
 
 	size max_length = 0;
-	#define X(cstr) if (sizeof(cstr) > max_length) max_length = sizeof(cstr);
+	#define X(cstr) if ((sizeof(cstr) - 1) > max_length) max_length = sizeof(cstr) - 1;
 	LINUX_BAT_INFO_STRS
 	#undef X
 
-	size needed_length = max_length + sizeof("/sys/class/power_supply/") - 1 + ba->bat.len;
+	size needed_length = max_length + ba->bat.len + sizeof("/sys/class/power_supply/");
 	lbd->path_base     = stream_alloc(a, needed_length);
 
 	stream_push_s8(&lbd->path_base, s8("/sys/class/power_supply/"));
