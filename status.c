@@ -131,7 +131,7 @@ get_time(void)
 static b32
 timer_update(f32 *timer, f32 interval, f32 dt)
 {
-	b32 result = 0;
+	b32 result = dt <= 0;
 	*timer -= dt;
 	while (*timer < 0) { *timer += interval; result = 1; }
 	return result;
