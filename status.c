@@ -269,6 +269,13 @@ terminate(int signo)
 }
 
 static void
+update_dirty_block_index(i32 new_index)
+{
+	if (dirty_block_index == -1 || new_index < dirty_block_index)
+		dirty_block_index = new_index;
+}
+
+static void
 dispatch_file_watch_events(Arena a)
 {
 	u8 *mem = alloc_(&a, 4096, 64, 1);
@@ -288,9 +295,7 @@ dispatch_file_watch_events(Arena a)
 				file_changed     |= (ie->mask & IN_MODIFY)      != 0;
 				/* TODO(rnp): it seems like this hits multiple times per update */
 				if (file_changed && fw->update_fn(blocks + fw->block_index, 0)) {
-					/* TODO(rnp): there might be an ordering issue here */
-					if (dirty_block_index == -1 || fw->block_index < dirty_block_index)
-						dirty_block_index = fw->block_index;
+					update_dirty_block_index(fw->block_index);
 				}
 			}
 		}
@@ -324,7 +329,7 @@ static void
 update_blocks(f32 dt)
 {
 	i32 count = 0;
-	#define X(name, fmt, args) if (name ##_update(blocks + count++, dt)) dirty_block_index = count - 1;
+	#define X(name, fmt, args) if (name ##_update(blocks + count++, dt)) update_dirty_block_index(count - 1);
 	BLOCKS
 	#undef X
 }
