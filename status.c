@@ -259,7 +259,7 @@ static Block blocks[] = {
 #endif
 
 static void
-terminate(int signo)
+terminate(i32 signo)
 {
 	if (!dflag) {
 		XStoreName(display, DefaultRootWindow(display), 0);
@@ -335,6 +335,12 @@ update_blocks(f32 dt)
 }
 
 static void
+reload_all_blocks(i32 _unused)
+{
+	update_blocks(0);
+}
+
+static void
 status_init(Arena *a)
 {
 	if (!dflag && !(display = XOpenDisplay(0)))
@@ -353,9 +359,16 @@ status_init(Arena *a)
 	sa.sa_flags = SA_RESTART;
 	sigemptyset(&sa.sa_mask);
 	sa.sa_handler = terminate;
-	sigaction(SIGHUP,  &sa, 0);
 	sigaction(SIGINT,  &sa, 0);
 	sigaction(SIGTERM, &sa, 0);
+
+	sa.sa_handler = reload_all_blocks;
+	sigaction(SIGHUP, &sa, 0);
+
+	sa.sa_flags   = 0;
+	sa.sa_handler = SIG_IGN;
+	for (size i = SIGRTMIN; i <= SIGRTMAX; i++)
+		sigaction(i, &sa, 0);
 
 	update_status();
 }
