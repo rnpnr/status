@@ -429,6 +429,15 @@ main(i32 argc, char *argv[])
 		}
 	}
 
+	/* NOTE(rnp): fork ourselves to the background and run as a daemon */
+	if (!dflag) {
+		switch(fork()) {
+		case -1: die("failed to fork to background\n");
+		case  0: setsid(); break;
+		default: _exit(0);
+		}
+	}
+
 	Arena memory = get_arena();
 	status_init(&memory);
 	status_loop(memory);
