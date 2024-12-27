@@ -26,6 +26,7 @@ static struct bat_arg ba  = {.bat = s8("BAT0")};
  * battery_info     battery percentage and status  (struct bat_arg *)
  * backlight        percentage                     (s8 *) backlight name
  * date             date and time                  (char *) fmt ("%R")
+ * script           run specified script           (char *) full script (echo foo | bar)
  */
 
 /* NOTE: X(name, statusline_format, interval, argument) *

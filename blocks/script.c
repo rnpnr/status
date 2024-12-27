@@ -1,15 +1,21 @@
 /* See LICENSE for license details. */
-static size_t
-script(struct Block *b)
+static BLOCK_UPDATE_FN(script_update)
 {
-	FILE *fp;
+	char *out = "";
 
-	if ((fp = popen(b->arg, "r")) == NULL)
-		die("popen()\n");
+	/* TODO(rnp): don't use c-runtime for this */
+	FILE *fp  = popen(b->arg, "r");
+	if (fp) {
+		if (fgets(buffer, sizeof(buffer), fp)) {
+			buffer[strcspn(buffer, "\n")] = 0;
+			out = buffer;
+		}
+		pclose(fp);
+	}
+	b->len = snprintf(b->data, sizeof(b->data), b->fmt, out);
+}
 
-	if (fgets(buf, sizeof(buf), fp) != NULL)
-		buf[strcspn(buf, "\n")] = 0;
-	pclose(fp);
-
-	return buf[0]? snprintf(b->curstr, LEN(b->curstr), b->fmt, buf) : 0;
+static BLOCK_INIT_FN(script_init)
+{
+	script_update(b);
 }
