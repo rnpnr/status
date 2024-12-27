@@ -30,9 +30,10 @@ Then copy `status` to wherever you want.
 Usage
 -----
 
-Execute with `status` or use `setsid -f status` to run in the
-background. `status` also accepts the `-d` option to print the
-line to `stdout` instead of setting the X root window name.
+Run `status` to launch in the background. Alternatively, launch to
+the foreground with `status -d`. When running in the foreground
+`status` prints to `stdout` instead of setting the X root window
+name.
 
 Gotchas
 -------
