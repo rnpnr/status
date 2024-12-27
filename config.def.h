@@ -14,10 +14,7 @@
 // static struct vol_arg va = { "default", "Speaker" };
 
 /* check blocks/xxx/battery_info.c for info */
-static struct bat_arg ba  = {.bat = s8("BAT0"), .interval = 30};
-
-/* check blocks/date.c for info */
-static struct date_arg da = {.fmt = "%R", .interval = 30};
+static struct bat_arg ba  = {.bat = s8("BAT0")};
 
 /* backlight name (/sys/class/backlight/xxx) */
 //static s8 linux_backlight = s8("xxx");
@@ -28,10 +25,11 @@ static struct date_arg da = {.fmt = "%R", .interval = 30};
  *
  * battery_info     battery percentage and status  (struct bat_arg *)
  * backlight        percentage                     (s8 *) backlight name
- * date             date and time                  (struct date_arg *)
+ * date             date and time                  (char *) fmt ("%R")
  */
 
-/* NOTE: X(name, statusline_format, argument) */
+/* NOTE: X(name, statusline_format, interval, argument) *
+ * interval == 0 means never update from timer          */
 #define BLOCKS \
-	X(battery_info, "[ %s ]", &ba) \
-	X(date,         "[ %s ]", &da)
+	X(battery_info, "[ %s ]", 30, &ba) \
+	X(date,         "[ %s ]", 30, "%R")

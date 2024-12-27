@@ -80,12 +80,13 @@ typedef struct {
 	void   *user_data;
 	void   *arg;
 	char   *fmt;
+	f32     timer;
+	u32     len;
 	char    data[BLOCKLEN];
-	size    len;
 } Block;
 
 #define BLOCK_INIT_FN(name)   void name(Block *b, i32 block_index, Arena *a)
-#define BLOCK_UPDATE_FN(name) b32  name(Block *b, f32 dt)
+#define BLOCK_UPDATE_FN(name) void name(Block *b)
 typedef BLOCK_UPDATE_FN(block_update_fn);
 
 typedef struct FileWatch {
@@ -125,15 +126,6 @@ get_time(void)
 	struct timespec t;
 	clock_gettime(CLOCK_MONOTONIC, &t);
 	f64 result = t.tv_sec + ((f64)t.tv_nsec) * 1e-9;
-	return result;
-}
-
-static b32
-timer_update(f32 *timer, f32 interval, f32 dt)
-{
-	b32 result = dt <= 0;
-	*timer -= dt;
-	while (*timer < 0) { *timer += interval; result = 1; }
 	return result;
 }
 
@@ -248,7 +240,7 @@ add_file_watch(Arena *a, char *path, i32 block_index, block_update_fn *update_fn
 
 #include "config.h"
 
-#define X(name, format, argument) {.fmt = format, .arg = argument},
+#define X(name, format, interval, argument) {.fmt = format, .arg = argument},
 static Block blocks[] = {
 	BLOCKS
 };
@@ -294,7 +286,8 @@ dispatch_file_watch_events(Arena a)
 				b32 file_changed  = (ie->mask & IN_CLOSE_WRITE) != 0;
 				file_changed     |= (ie->mask & IN_MODIFY)      != 0;
 				/* TODO(rnp): it seems like this hits multiple times per update */
-				if (file_changed && fw->update_fn(blocks + fw->block_index, 0)) {
+				if (file_changed) {
+					fw->update_fn(blocks + fw->block_index);
 					update_dirty_block_index(fw->block_index);
 				}
 			}
@@ -325,11 +318,27 @@ update_status(void)
 	}
 }
 
+static b32
+timer_update(f32 *timer, f32 interval, f32 dt)
+{
+	b32 result = dt <= 0;
+	if (interval > 0) {
+		*timer -= dt;
+		while (*timer < 0) { *timer += interval; result = 1; }
+	}
+	return result;
+}
+
 static void
 update_blocks(f32 dt)
 {
 	i32 count = 0;
-	#define X(name, fmt, args) if (name ##_update(blocks + count++, dt)) update_dirty_block_index(count - 1);
+	#define X(name, fmt, interval, args) \
+		if (timer_update(&blocks[count].timer, interval, dt)) { \
+			name ##_update(blocks + count);                 \
+			update_dirty_block_index(count);                \
+		}                                                       \
+		count++;
 	BLOCKS
 	#undef X
 }
@@ -351,7 +360,7 @@ status_init(Arena *a)
 	file_watches.wd = inotify_init1(O_NONBLOCK|O_CLOEXEC);
 
 	i32 count = 0;
-	#define X(name, fmt, arg) name ##_init(blocks + count, count, a); count++;
+	#define X(name, fmt, interval, arg) name ##_init(blocks + count, count, a); count++;
 	BLOCKS
 	#undef X
 

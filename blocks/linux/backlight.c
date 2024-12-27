@@ -3,17 +3,12 @@ struct linux_backlight_data {i64 max_brightness; char *brightness_path;};
 
 static BLOCK_UPDATE_FN(backlight_update)
 {
-	if (dt > 0)
-		return 0;
-
 	struct linux_backlight_data *lbd = b->user_data;
 	i64 current = read_i64(lbd->brightness_path);
 	f32 percent = 100 * current / (f32)lbd->max_brightness + 0.5;
 	i64 len = snprintf(buffer, sizeof(buffer), "%d%%", (i32)percent);
 	buffer[len] = 0;
 	b->len = snprintf(b->data, sizeof(b->data), b->fmt, buffer);
-
-	return 1;
 }
 
 static BLOCK_INIT_FN(backlight_init)
@@ -37,6 +32,6 @@ static BLOCK_INIT_FN(backlight_init)
 	lbd->brightness_path = (char *)path.buffer;
 	a->beg += path.write_index;
 
-	backlight_update(b, 0);
+	backlight_update(b);
 	add_file_watch(a, lbd->brightness_path, block_index, backlight_update);
 }

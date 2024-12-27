@@ -7,15 +7,12 @@ struct bat_arg {
 	f32   interval; /* [s] */
 };
 
-struct linux_battery_data { Stream path_base; i64 energy_full; f32 timer; };
+struct linux_battery_data { Stream path_base; i64 energy_full; };
 
 static BLOCK_UPDATE_FN(battery_info_update)
 {
 	struct bat_arg *ba             = b->arg;
 	struct linux_battery_data *lbd = b->user_data;
-
-	if (!timer_update(&lbd->timer, ba->interval, dt))
-		return 0;
 
 	char *pre = ba->pre ? ba->pre : "";
 	char *suf = ba->suf ? ba->suf : "";
@@ -63,8 +60,6 @@ static BLOCK_UPDATE_FN(battery_info_update)
 	}
 	buffer[len] = 0;
 	b->len = snprintf(b->data, sizeof(b->data), b->fmt, buffer);
-
-	return 1;
 }
 
 #define LINUX_BAT_INFO_STRS \
@@ -96,5 +91,5 @@ static BLOCK_INIT_FN(battery_info_init)
 		die("battery_info_init: failed to read battery capacity\n");
 	lbd->path_base.write_index = sidx;
 
-	battery_info_update(b, 1);
+	battery_info_update(b);
 }
