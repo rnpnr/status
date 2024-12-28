@@ -4,7 +4,6 @@ struct bat_arg {
 	char *pre;      /* prefix for percentages less than thres */
 	char *suf;      /* suffix for percentages less than thres */
 	i32   thres;    /* % threshold to consider low (-1 to disable) */
-	f32   interval; /* [s] */
 };
 
 struct linux_battery_data { Stream path_base; i64 energy_full; };
