@@ -26,7 +26,7 @@ static BLOCK_UPDATE_FN(battery_info_update)
 	energy_now = read_i64(stream_ensure_c_str(&lbd->path_base));
 	lbd->path_base.write_index = sidx;
 
-	f32 percent = (100 * energy_now / (f64)lbd->energy_full) + 0.5;
+	f32 percent = 100 * (energy_now / (f64)lbd->energy_full) + 0.5;
 	b32 warn    = percent < ba->thres;
 
 	char state_buffer[16] = {0};
