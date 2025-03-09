@@ -24,7 +24,7 @@ static BLOCK_UPDATE_FN(battery_info_update)
 
 	stream_push_s8(&lbd->path_base, s8("/energy_now"));
 	energy_now = read_i64(stream_ensure_c_str(&lbd->path_base));
-	lbd->path_base.write_index = sidx;
+	stream_reset(&lbd->path_base, sidx);
 
 	f32 percent = 100 * (energy_now / (f64)lbd->energy_full) + 0.5;
 	b32 warn    = percent < ba->thres;
@@ -35,7 +35,7 @@ static BLOCK_UPDATE_FN(battery_info_update)
 	                                (s8){.len = sizeof(state_buffer),
 	                                     .data = (u8 *)state_buffer}));
 	if (state.len <= 0) state = s8("Unknown");
-	lbd->path_base.write_index = sidx;
+	stream_reset(&lbd->path_base, sidx);
 	state.data[state.len] = 0;
 
 	i64 len;
@@ -45,7 +45,7 @@ static BLOCK_UPDATE_FN(battery_info_update)
 		stream_push_s8(&lbd->path_base, s8("/power_now"));
 		power_now = read_i64(stream_ensure_c_str(&lbd->path_base));
 		if (!power_now) power_now = 1;
-		lbd->path_base.write_index = sidx;
+		stream_reset(&lbd->path_base, sidx);
 
 		timeleft = energy_now / (f64)ABS(power_now);
 		h = timeleft;
@@ -88,7 +88,7 @@ static BLOCK_INIT_FN(battery_info_init)
 	lbd->energy_full = read_i64(stream_ensure_c_str(&lbd->path_base));
 	if (!lbd->energy_full)
 		die("battery_info_init: failed to read battery capacity\n");
-	lbd->path_base.write_index = sidx;
+	stream_reset(&lbd->path_base, sidx);
 
 	battery_info_update(b);
 }

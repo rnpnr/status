@@ -205,6 +205,13 @@ s8_trim_space(s8 a)
 	return a;
 }
 
+static void
+stream_reset(Stream *s, size position)
+{
+	s->errors = !BETWEEN(position, 0, s->capacity);
+	if (!s->errors) s->write_index = position;
+}
+
 static Stream
 stream_alloc(Arena *a, size capacity)
 {
@@ -321,7 +328,7 @@ dispatch_file_watch_events(Arena a)
 static void
 update_status(void)
 {
-	statusline.write_index = 0;
+	stream_reset(&statusline, 0);
 	i32 block_index;
 	for (block_index = 0; block_index < dirty_block_index; block_index++)
 		statusline.write_index += blocks[block_index].len;

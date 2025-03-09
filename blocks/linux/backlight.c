@@ -25,7 +25,7 @@ static BLOCK_INIT_FN(backlight_init)
 	lbd->max_brightness = read_i64(stream_ensure_c_str(&path));
 	if (!lbd->max_brightness)
 		die("backlight_init: failed to read max brightness\n");
-	path.write_index = sidx;
+	stream_reset(&path, sidx);
 
 	stream_push_s8(&path, s8("/brightness"));
 	path.buffer[path.write_index++] = 0;
