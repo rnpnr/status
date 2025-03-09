@@ -214,11 +214,18 @@ stream_alloc(Arena *a, size capacity)
 	return result;
 }
 
+static void
+stream_force_push_byte(Stream *s, u8 byte)
+{
+	s->errors |= s->capacity < (s->write_index + 1);
+	if (s->errors) s->buffer[s->capacity - 1]  = byte;
+	else           s->buffer[s->write_index++] = byte;
+}
+
 static char *
 stream_ensure_c_str(Stream *s)
 {
-	ASSERT(s->write_index < s->capacity);
-	s->buffer[s->write_index] = 0;
+	stream_force_push_byte(s, 0);
 	return (char *)s->buffer;
 }
 
@@ -325,7 +332,8 @@ update_status(void)
 	}
 
 	if (dflag) {
-		puts(stream_ensure_c_str(&statusline));
+		stream_force_push_byte(&statusline, '\n');
+		write(STDOUT_FILENO, statusline.buffer, statusline.write_index);
 	} else {
 		XStoreName(display, DefaultRootWindow(display),
 		           stream_ensure_c_str(&statusline));
