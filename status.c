@@ -12,9 +12,12 @@
 #include <unistd.h>
 #include <X11/Xlib.h>
 
-#define ABS(a)         ((a) < 0 ? -(a) : (a))
-#define MIN(a, b)      ((a) < (b) ? (a) : (b))
-#define ARRAY_COUNT(a) (sizeof(a) / sizeof(*a))
+#define ABS(a)           ((a) < 0 ? -(a) : (a))
+#define MIN(a, b)        ((a) < (b) ? (a) : (b))
+#define BETWEEN(x, a, b) ((x) >= (a) && (x) <= (b))
+#define ARRAY_COUNT(a)   (sizeof(a) / sizeof(*a))
+
+#define I64_MAX  INT64_MAX
 #define BLOCKLEN 128
 
 #define ISSPACE(c)     ((c) == ' ' || (c) == '\n' || (c) == '\t')
@@ -106,8 +109,6 @@ static FileWatch  file_watches;
 
 static i32        dflag;
 
-i64 strtol(const char *, char **, i32);
-
 static void
 die(const char *errstr, ...)
 {
@@ -141,14 +142,23 @@ read_s8(char *path, s8 buffer)
 static i64
 read_i64(char *path)
 {
-	i64 result = 0;
 	char buffer[64];
-	s8 str = read_s8(path, (s8){.len = sizeof(buffer), .data = (u8 *)buffer});
-	if (str.len > 0) {
-		buffer[MIN(str.len, sizeof(buffer) - 1)] = 0;
-		result = strtol(buffer, 0, 10);
+	s8 s = read_s8(path, (s8){.len = sizeof(buffer), .data = (u8 *)buffer});
+
+	i64 result = 0;
+	i64 i      = s.len && (s.data[0] == '-' || s.data[0] == '+');
+	i64 sign   = (s.len && s.data[0] == '-') ? -1 : 1;
+
+	for (; i < s.len && BETWEEN(s.data[i], '0', '9'); i++) {
+		i32 digit = (i32)s.data[i] - '0';
+		if (result > (I64_MAX - digit) / 10) {
+			result = I64_MAX;
+		} else {
+			result = 10 * result + digit;
+		}
 	}
-	return result;
+
+	return sign * result;
 }
 
 static void *
