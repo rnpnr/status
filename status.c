@@ -36,10 +36,6 @@
 #define asm __asm__
 #endif
 
-#ifndef typeof
-#define typeof __typeof__
-#endif
-
 #ifdef __ARM_ARCH_ISA_A64
 #define debugbreak() asm volatile ("brk 0xf000")
 #elif __x86_64__
@@ -50,10 +46,8 @@
 
 #ifdef _DEBUG
 #define ASSERT(c) do { if (!(c)) debugbreak(); } while (0)
-#define DEBUG_EXPORT
 #else
 #define ASSERT(c) do { (void)(c); } while (0)
-#define DEBUG_EXPORT static
 #endif
 
 typedef float     f32;
@@ -470,7 +464,7 @@ main(i32 argc, char *argv[])
 
 	/* NOTE(rnp): fork ourselves to the background and run as a daemon */
 	if (!dflag) {
-		switch(fork()) {
+		switch (fork()) {
 		case -1: die("failed to fork to background\n");
 		case  0: setsid(); break;
 		default: _exit(0);
