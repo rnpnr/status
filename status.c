@@ -223,13 +223,19 @@ stream_ensure_c_str(Stream *s)
 }
 
 static void
+stream_push(Stream *s, void *data, size len)
+{
+	s->errors |= s->capacity <= (s->write_index + len);
+	if (!s->errors) {
+		memcpy(s->buffer + s->write_index, data, len);
+		s->write_index += len;
+	}
+}
+
+static void
 stream_push_s8(Stream *s, s8 str)
 {
-	s->errors |= s->capacity <= (s->write_index + str.len);
-	if (!s->errors) {
-		memcpy(s->buffer + s->write_index, str.data, str.len);
-		s->write_index += str.len;
-	}
+	stream_push(s, str.data, str.len);
 }
 
 static void
@@ -315,15 +321,14 @@ update_status(void)
 
 	for (; block_index < ARRAY_COUNT(blocks); block_index++) {
 		Block *b = blocks + block_index;
-		memcpy(statusline.buffer + statusline.write_index, b->data, b->len);
-		statusline.write_index += b->len;
+		stream_push(&statusline, b->data, b->len);
 	}
-	statusline.buffer[statusline.write_index] = 0;
 
 	if (dflag) {
-		puts((char *)statusline.buffer);
+		puts(stream_ensure_c_str(&statusline));
 	} else {
-		XStoreName(display, DefaultRootWindow(display), (char *)statusline.buffer);
+		XStoreName(display, DefaultRootWindow(display),
+		           stream_ensure_c_str(&statusline));
 		XSync(display, 0);
 	}
 }
